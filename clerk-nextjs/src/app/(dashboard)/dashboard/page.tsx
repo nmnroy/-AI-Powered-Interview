@@ -9,7 +9,7 @@ import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { DashboardDataType } from "@/types";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const DAILY_QUOTES = [
   "The only way to do great work is to love what you do. — Steve Jobs",
@@ -269,11 +269,11 @@ export default function DashboardHomePage() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.recentAnswers.slice().reverse()} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e2d4a" vertical={false} />
-                  <XAxis dataKey="createdAt" stroke="#64748b" tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})} />
+                  <XAxis dataKey="createdAt" stroke="#64748b" tickFormatter={(val: any) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})} />
                   <YAxis stroke="#64748b" domain={[0, 10]} />
-                  <RechartsTooltip 
+                  <Tooltip 
                     contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e2d4a', borderRadius: '1rem' }}
-                    labelFormatter={(val) => new Date(val).toLocaleString()}
+                    labelFormatter={(val: any) => val ? new Date(val).toLocaleString() : ''}
                   />
                   <Line type="monotone" dataKey="score" stroke="#06b6d4" strokeWidth={3} dot={{ r: 4, fill: '#06b6d4', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#fff', stroke: '#06b6d4' }} />
                 </LineChart>
