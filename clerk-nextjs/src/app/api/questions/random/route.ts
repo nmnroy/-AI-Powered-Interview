@@ -29,7 +29,6 @@ export async function GET(req: Request) {
     const where: Prisma.QuestionWhereInput = {
       ...(category ? { category } : {}),
       ...(difficulty ? { difficulty } : {}),
-      OR: userId ? [{ userId: null }, { user: { clerkId: userId } }] : [{ userId: null }],
     };
 
     const count = await prisma.question.count({ where });

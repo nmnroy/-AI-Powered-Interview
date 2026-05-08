@@ -3,18 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String     @id @default(cuid())
-  clerkId   String     @unique
-  email     String     @unique
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
   name      String?
-  createdAt DateTime   @default(now())
+  createdAt DateTime @default(now())
   answers   Answer[]
-  questions Question[]
   streak    Streak?
 }
 
@@ -24,22 +23,20 @@ model Question {
   category   Category
   difficulty Difficulty
   tags       String[]
-  userId     String?
-  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   answers    Answer[]
   createdAt  DateTime   @default(now())
 }
 
 model Answer {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   content    String
   score      Int?
   feedback   String?
   userId     String
   questionId String
-  user       User      @relation(fields: [userId], references: [id])
-  question   Question  @relation(fields: [questionId], references: [id])
-  createdAt  DateTime  @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 model Streak {

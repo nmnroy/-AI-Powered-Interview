@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import type { QuestionType } from "@/types";
 import { Skeleton } from "@/components/ui/Skeleton";
+import ProctoringCamera from "@/components/shared/ProctoringCamera";
 
 type Mode = "select" | "write" | "feedback";
 
@@ -25,7 +26,8 @@ export default function PracticePage() {
   const [feedback, setFeedback] = useState<any | null>(null);
   const [animatedScore, setAnimatedScore] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
-
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [cameraStats, setCameraStats] = useState({ noFaceWarnings: 0, multipleFaceWarnings: 0, sessionDuration: 0 });
   useEffect(() => {
     // Fetch current streak
     const fetchStreak = async () => {
@@ -67,13 +69,26 @@ export default function PracticePage() {
   useEffect(() => {
     if (mode === "write") {
       timerRef.current = window.setInterval(() => setTimerSec((s) => s + 1), 1000);
+      
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          setTabSwitchCount(prev => {
+            const next = prev + 1;
+            toast.warning(`Tab switch detected! ${next} warning(s)`);
+            return next;
+          });
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
   }, [mode]);
 
   useEffect(() => {
@@ -113,6 +128,8 @@ export default function PracticePage() {
       setQuestion(q);
       setContent("");
       setTimerSec(0);
+      setTabSwitchCount(0);
+      setCameraStats({ noFaceWarnings: 0, multipleFaceWarnings: 0, sessionDuration: 0 });
       setMode("write");
     } catch (e) {
       toast.error("Something went wrong. Try again.");
@@ -376,6 +393,11 @@ export default function PracticePage() {
             padding: '24px',
             animation: 'fadeInUp 0.5s ease-out'
           }}>
+            {tabSwitchCount >= 3 && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm text-center font-medium">
+                You switched tabs 3+ times during this session
+              </div>
+            )}
             <div className="flex justify-between items-start mb-4">
               <div className="flex gap-2">
                 <span className={`px-2 py-1 rounded text-xs font-medium ${getCategoryColor(question.category)}`}>
@@ -445,7 +467,7 @@ export default function PracticePage() {
                 cursor: (submittingAnswer || loadingFeedback || !content.trim()) ? 'not-allowed' : 'pointer'
               }}
             >
-              📤 Submit Answer
+              {submittingAnswer || loadingFeedback ? "Analyzing..." : "📤 Submit Answer"}
             </button>
           </div>
         )}
@@ -469,6 +491,29 @@ export default function PracticePage() {
                 {animatedScore}/10
               </div>
               <p className="text-gray-400 text-sm mt-2">Overall Score</p>
+            </div>
+
+            {/* Proctoring Summary Card */}
+            <div className="mb-8 p-4 rounded-lg flex flex-col md:flex-row justify-between items-center border border-gray-700" style={{ background: '#080d1a' }}>
+              <div>
+                <h3 className="text-white font-semibold text-sm flex items-center gap-2">
+                  <span className="text-red-400">📷</span> Session Report
+                </h3>
+              </div>
+              <div className="flex gap-6 mt-4 md:mt-0 text-sm">
+                <div className="flex flex-col items-center">
+                  <span className="text-gray-400 text-xs">Tab switches</span>
+                  <span className={`font-semibold ${tabSwitchCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{tabSwitchCount}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-gray-400 text-xs">Face warnings</span>
+                  <span className={`font-semibold ${cameraStats.noFaceWarnings + cameraStats.multipleFaceWarnings > 0 ? 'text-red-400' : 'text-green-400'}`}>{cameraStats.noFaceWarnings + cameraStats.multipleFaceWarnings}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-gray-400 text-xs">Duration</span>
+                  <span className="text-white font-semibold">{formatTime(cameraStats.sessionDuration)}</span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4 mb-8">
@@ -568,6 +613,11 @@ export default function PracticePage() {
           </div>
         )}
       </div>
+      
+      <ProctoringCamera 
+        isActive={mode === 'write'}
+        onStatsUpdate={setCameraStats}
+      />
     </div>
   );
 }
