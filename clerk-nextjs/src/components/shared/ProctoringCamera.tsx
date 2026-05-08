@@ -33,6 +33,9 @@ export default function ProctoringCamera({ isActive, onStatsUpdate }: Proctoring
 
   useEffect(() => {
     let mounted = true;
+    let audioCtx: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let audioInterval: number | null = null;
     
     const startCamera = async () => {
       try {
@@ -48,6 +51,33 @@ export default function ProctoringCamera({ isActive, onStatsUpdate }: Proctoring
           stream.getTracks().forEach(t => t.stop());
           return;
         }
+
+        // --- Voice Proctoring (Noise Detection) ---
+        try {
+          audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+          analyser = audioCtx.createAnalyser();
+          const source = audioCtx.createMediaStreamSource(stream);
+          source.connect(analyser);
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+          audioInterval = window.setInterval(() => {
+            if (analyser) {
+              analyser.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+              const average = sum / dataArray.length;
+              
+              // Threshold for "loud noise" - can be tuned
+              if (average > 60) {
+                toast.warning("⚠ Loud noise detected. Please ensure a quiet environment.");
+              }
+            }
+          }, 2000);
+        } catch (e) {
+          console.error("Audio proctoring failed:", e);
+        }
+        // ------------------------------------------
 
         streamRef.current = stream;
         if (videoRef.current) {
@@ -94,6 +124,8 @@ export default function ProctoringCamera({ isActive, onStatsUpdate }: Proctoring
         return () => {
           clearInterval(durationInterval);
           if (intervalRef.current) clearInterval(intervalRef.current);
+          if (audioInterval) clearInterval(audioInterval);
+          if (audioCtx) audioCtx.close();
         };
       } catch (err) {
         console.error("Camera access error:", err);
@@ -126,6 +158,8 @@ export default function ProctoringCamera({ isActive, onStatsUpdate }: Proctoring
         streamRef.current.getTracks().forEach(t => t.stop());
       }
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (audioInterval) clearInterval(audioInterval);
+      if (audioCtx) audioCtx.close();
     };
   }, [isActive, onStatsUpdate]);
 
