@@ -151,7 +151,6 @@ export default function ProgressPage() {
         <StatCard
           title="Best Score Ever"
           value={data?.stats?.bestScore ?? "-"}
-          change={lastWeekChange}
         />
       </section>
 
