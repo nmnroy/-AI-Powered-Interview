@@ -201,6 +201,22 @@ export default function GenerateQuestionsPage() {
   return (
     <div className="space-y-8">
       <section className="dashboard-card rounded-[2rem] p-6 shadow-[0_20px_80px_rgba(5,10,24,0.35)] sm:p-8">
+        <Link href="/dashboard" style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          color: '#64748b',
+          fontSize: 13,
+          marginBottom: 16,
+          textDecoration: 'none',
+          padding: '6px 12px',
+          borderRadius: 8,
+          border: '1px solid #1e2d4a',
+          background: 'transparent',
+          transition: 'all 0.2s',
+        }}>
+          ← Back to Dashboard
+        </Link>
         <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-300">Question Generator</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Generate Questions from Job Description

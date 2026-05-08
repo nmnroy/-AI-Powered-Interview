@@ -1,37 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { MoonStar, SunMedium } from "lucide-react";
-
-type Theme = "light" | "dark";
-
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-
-  const storedTheme = window.localStorage.getItem("theme");
-  if (storedTheme === "light" || storedTheme === "dark") {
-    return storedTheme;
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
+'use client'
+import { useState, useEffect } from 'react'
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
-
+  const [isDark, setIsDark] = useState(true)
+  
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("theme", theme);
-  }, [theme]);
-
+    const saved = localStorage.getItem('theme')
+    if (saved === 'light') {
+      setIsDark(false)
+      document.documentElement.classList.remove('dark')
+      document.documentElement.setAttribute(
+        'data-theme', 'light'
+      )
+    }
+  }, [])
+  
+  const toggle = () => {
+    const newTheme = isDark ? 'light' : 'dark'
+    setIsDark(!isDark)
+    localStorage.setItem('theme', newTheme)
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+      document.documentElement.setAttribute(
+        'data-theme', 'dark'
+      )
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.setAttribute(
+        'data-theme', 'light'
+      )
+    }
+  }
+  
   return (
-    <button
-      type="button"
-      onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:border-cyan-400/40 hover:text-cyan-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? <SunMedium className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+    <button onClick={toggle} style={{
+      background: 'rgba(255,255,255,0.05)',
+      border: '1px solid #1e2d4a',
+      borderRadius: 8,
+      padding: '6px 10px',
+      cursor: 'pointer',
+      fontSize: 16,
+      color: '#94a3b8',
+    }}>
+      {isDark ? '☀️' : '🌙'}
     </button>
-  );
+  )
 }

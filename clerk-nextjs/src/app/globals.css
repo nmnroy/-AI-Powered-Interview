@@ -266,3 +266,21 @@ body {
   background-size: 200% 100%;
   animation: gradient-border 3s ease infinite;
 }
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-secondary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: #e2e8f0;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0a0f1e;
+  --bg-card: #0d1526;
+  --bg-secondary: #111827;
+  --text-primary: #ffffff;
+  --text-secondary: #64748b;
+  --border-color: #1e2d4a;
+}

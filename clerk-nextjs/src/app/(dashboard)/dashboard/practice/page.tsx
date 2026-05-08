@@ -277,6 +277,22 @@ export default function PracticePage() {
         {/* Page Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
+            <Link href="/dashboard" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#64748b',
+              fontSize: 13,
+              marginBottom: 16,
+              textDecoration: 'none',
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: '1px solid #1e2d4a',
+              background: 'transparent',
+              transition: 'all 0.2s',
+            }}>
+              ← Back to Dashboard
+            </Link>
             <h1 className="text-white font-semibold" style={{ fontSize: '28px' }}>Practice Session</h1>
             <p className="text-gray-400 mt-1" style={{ fontSize: '14px' }}>Sharpen your skills with targeted questions</p>
           </div>

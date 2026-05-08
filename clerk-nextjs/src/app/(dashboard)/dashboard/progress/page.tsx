@@ -140,6 +140,22 @@ export default function ProgressPage() {
   return (
     <div className="space-y-6">
       <header>
+        <Link href="/dashboard" style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          color: '#64748b',
+          fontSize: 13,
+          marginBottom: 16,
+          textDecoration: 'none',
+          padding: '6px 12px',
+          borderRadius: 8,
+          border: '1px solid #1e2d4a',
+          background: 'transparent',
+          transition: 'all 0.2s',
+        }}>
+          ← Back to Dashboard
+        </Link>
         <h1 className="text-2xl font-semibold text-white">Progress</h1>
         <p className="text-sm text-slate-400">Track your performance and trends over time.</p>
       </header>
