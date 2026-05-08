@@ -1,0 +1,1 @@
+export * from "../../../../src/app/api/user/sync/route";

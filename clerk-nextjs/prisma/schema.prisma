@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  clerkId   String     @unique
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  answers   Answer[]
+  questions Question[]
+  streak    Streak?
+}
+
+model Question {
+  id         String     @id @default(cuid())
+  text       String
+  category   Category
+  difficulty Difficulty
+  tags       String[]
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  answers    Answer[]
+  createdAt  DateTime   @default(now())
+}
+
+model Answer {
+  id         String    @id @default(cuid())
+  content    String
+  score      Int?
+  feedback   String?
+  userId     String
+  questionId String
+  user       User      @relation(fields: [userId], references: [id])
+  question   Question  @relation(fields: [questionId], references: [id])
+  createdAt  DateTime  @default(now())
+}
+
+model Streak {
+  id               String    @id @default(cuid())
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastPracticeDate DateTime?
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id])
+}
+
+enum Category {
+  DSA
+  HR
+  SYSTEM_DESIGN
+  BEHAVIORAL
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
