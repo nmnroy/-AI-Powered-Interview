@@ -26,26 +26,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signInForceRedirectUrl="/dashboard"
+      signUpForceRedirectUrl="/dashboard"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/dashboard"
     >
-      <body className="min-h-full bg-background text-foreground">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <ClerkProvider
-            signInUrl="/sign-in"
-            signUpUrl="/sign-up"
-            signInForceRedirectUrl="/dashboard"
-            signUpForceRedirectUrl="/dashboard"
-            signInFallbackRedirectUrl="/dashboard"
-            signUpFallbackRedirectUrl="/dashboard"
-          >
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      >
+        <body className="min-h-full bg-background text-foreground">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
             {children}
-          </ClerkProvider>
-          <Toaster richColors position="top-right" />
-        </ThemeProvider>
-      </body>
-    </html>
+            <Toaster richColors position="top-right" />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
