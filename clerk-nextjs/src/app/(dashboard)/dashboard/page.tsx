@@ -9,6 +9,7 @@ import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { DashboardDataType } from "@/types";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 
 const DAILY_QUOTES = [
   "The only way to do great work is to love what you do. — Steve Jobs",
@@ -34,7 +35,7 @@ function getQuoteOfDay(): string {
 }
 
 const statCardStyles = [
-  { title: "Current Streak", icon: Flame, topBorderColor: "from-cyan-500 to-cyan-400", glowColor: "0 -2px 20px rgba(0,212,255,0.1)" },
+  { title: "Skill Proficiency", icon: Flame, topBorderColor: "from-cyan-500 to-cyan-400", glowColor: "0 -2px 20px rgba(0,212,255,0.1)" },
   { title: "Total Answers", icon: MessageSquare, topBorderColor: "from-purple-500 to-purple-400", glowColor: "0 -2px 20px rgba(124,58,237,0.1)" },
   { title: "Average Score", icon: Sparkles, topBorderColor: "from-emerald-500 to-emerald-400", glowColor: "0 -2px 20px rgba(16,185,129,0.1)" },
   { title: "Questions Left Today", icon: Target, topBorderColor: "from-blue-500 to-blue-400", glowColor: "0 -2px 20px rgba(59,130,246,0.1)" },
@@ -256,108 +257,70 @@ export default function DashboardHomePage() {
         </section>
       )}
 
-      {/* QUICK ACTION CARDS */}
-      <section>
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-white">Quick Actions</h2>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-
-            return (
-              <Link
-                key={action.title}
-                href={action.href}
-                className="dashboard-card group rounded-3xl p-6 shadow-[0_12px_40px_rgba(5,10,24,0.35)] transition-all duration-300 hover:-translate-y-1"
-                style={{ transition: 'all 0.25s ease' }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = action.hoverGlow}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 12px 40px rgba(5,10,24,0.35)'}
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/12 text-cyan-300 transition duration-300 group-hover:bg-cyan-500/20">
-                  <Icon className="h-5 w-5 transition duration-300 group-hover:translate-x-1" />
+      {/* PERFORMANCE TREND & RECENT SESSIONS */}
+      <section className="grid gap-6 lg:grid-cols-3">
+        {/* CHART */}
+        <div className="lg:col-span-2 dashboard-card rounded-[2rem] p-6 shadow-[0_12px_40px_rgba(5,10,24,0.35)]">
+          <h2 className="mb-6 text-xl font-semibold text-white">Performance Trend</h2>
+          <div className="h-72 w-full">
+            {loading ? (
+               <Skeleton className="h-full w-full rounded-2xl" />
+            ) : data && data.recentAnswers.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data.recentAnswers.slice().reverse()} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e2d4a" vertical={false} />
+                  <XAxis dataKey="createdAt" stroke="#64748b" tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})} />
+                  <YAxis stroke="#64748b" domain={[0, 10]} />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e2d4a', borderRadius: '1rem' }}
+                    labelFormatter={(val) => new Date(val).toLocaleString()}
+                  />
+                  <Line type="monotone" dataKey="score" stroke="#06b6d4" strokeWidth={3} dot={{ r: 4, fill: '#06b6d4', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#fff', stroke: '#06b6d4' }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+                <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                  Not enough data to display trend
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-white">{action.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{action.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-cyan-300 opacity-0 transition duration-300 group-hover:opacity-100">
-                  Get started <ArrowRight className="h-3 w-3 transition duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* RECENT ANSWERS SECTION */}
-      <section className="dashboard-card rounded-[2rem] p-6 shadow-[0_12px_40px_rgba(5,10,24,0.35)] sm:p-8">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Recent Answers</h2>
-            <p className="mt-1 text-sm text-slate-400">Your latest five attempts and scores.</p>
+            )}
           </div>
-          {!loading && data?.recentAnswers.length ? (
-            <Link href="/dashboard/progress" className="text-xs font-semibold text-cyan-300 hover:text-cyan-200 transition">
-              View All →
-            </Link>
-          ) : null}
         </div>
 
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <Skeleton key={index} className="h-16 rounded-2xl" />
-              ))}
-            </div>
-          ) : data?.recentAnswers.length ? (
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-xs font-semibold text-slate-400 border-b border-[#1e2d4a]">
-                  <th className="pb-3 px-3">Question Preview</th>
-                  <th className="pb-3 px-3">Category</th>
-                  <th className="pb-3 px-3">Score</th>
-                  <th className="pb-3 px-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.recentAnswers.map((answer) => (
-                  <tr key={answer.id} className="border-b border-[#1e2d4a]/50 hover:bg-[#0d1526]/50 transition">
-                    <td className="py-4 px-3">
-                      <p className="text-sm text-slate-100 line-clamp-2">
-                        {answer.question.text}
-                      </p>
-                    </td>
-                    <td className="py-4 px-3">
-                      <span className="text-xs font-medium text-slate-400">
-                        {answer.question.category.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td className="py-4 px-3">
-                      <ScoreBadge score={answer.score} />
-                    </td>
-                    <td className="py-4 px-3">
-                      <Link href="/dashboard/progress" className="text-cyan-400 hover:text-cyan-300 transition">
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-[#1e2d4a] p-12 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 mx-auto text-2xl">
-                📝
-              </div>
-              <p className="text-sm font-medium text-slate-300">No practice sessions yet</p>
-              <p className="mt-2 text-xs text-slate-400">
-                Start your first practice session to see your recent results here.
-              </p>
-              <Link href="/dashboard/practice" className="mt-4 inline-block text-xs font-semibold text-cyan-300 hover:text-cyan-200">
-                Start Practicing →
+        {/* TIMELINE */}
+        <div className="lg:col-span-1 dashboard-card rounded-[2rem] p-6 shadow-[0_12px_40px_rgba(5,10,24,0.35)] flex flex-col">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">Recent Sessions</h2>
+            {!loading && data?.recentAnswers.length ? (
+              <Link href="/dashboard/progress" className="text-xs font-semibold text-cyan-300 hover:text-cyan-200 transition">
+                View All →
               </Link>
-            </div>
-          )}
+            ) : null}
+          </div>
+          <div className="flex-1 overflow-y-auto pr-2">
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+              </div>
+            ) : data?.recentAnswers.length ? (
+              <div className="relative border-l border-slate-700/50 pl-4 py-2 space-y-6">
+                {data.recentAnswers.map((answer) => (
+                  <div key={answer.id} className="relative">
+                    <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-cyan-400 border-2 border-[#090e1a]" />
+                    <p className="text-xs text-slate-400 mb-1">{formatDate(answer.createdAt)}</p>
+                    <p className="text-sm text-slate-200 font-medium line-clamp-1">{answer.question.category.replace("_", " ")}</p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <span className="text-xs text-slate-500 line-clamp-1 flex-1">{answer.question.text}</span>
+                      <ScoreBadge score={answer.score} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-sm text-slate-400">No recent sessions yet.</p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>
