@@ -63,7 +63,10 @@ export default function PracticePage() {
 
   async function fetchHint() {
     if (!question) return;
-    if (hint) { setHintVisible(v => !v); return; }
+    if (hint && !hint.toLowerCase().includes("failed") && !hint.toLowerCase().includes("exhausted")) { 
+      setHintVisible(v => !v); 
+      return; 
+    }
     setHintLoading(true);
     setHintVisible(true);
     try {
@@ -73,9 +76,10 @@ export default function PracticePage() {
         body: JSON.stringify({ questionText: question.text, category: question.category, difficulty: question.difficulty }),
       });
       const json = await res.json();
-      setHint(json.hint ?? "No hint available.");
-    } catch {
-      setHint("Failed to load hint. Try again.");
+      if (!res.ok) throw new Error(json.error || "Failed to load hint");
+      setHint(json.hint || "No hint available for this question.");
+    } catch (e: any) {
+      setHint(e.message || "Failed to load hint. Try again.");
     } finally {
       setHintLoading(false);
     }
