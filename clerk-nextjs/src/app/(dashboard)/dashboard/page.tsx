@@ -74,9 +74,9 @@ export default function DashboardHomePage() {
 
   // Quick actions array
   const quickActions = [
-    { title: "DSA Practice", desc: "Algorithms & Data Structures", icon: Code, href: "/dashboard/practice?category=dsa" },
-    { title: "System Design", desc: "Architecture & Scalability", icon: Terminal, href: "/dashboard/practice?category=system_design" },
-    { title: "HR / Behavioral", desc: "Leadership & Culture", icon: MessageSquare, href: "/dashboard/practice?category=hr" }
+    { title: "DSA Practice", desc: "Algorithms & Data Structures", icon: Code, href: "/dashboard/practice?category=dsa", hoverBorder: "hover:border-[rgba(59,130,246,0.3)]", bg: "rgba(59, 130, 246, 0.05)", border: "rgba(59, 130, 246, 0.15)", iconColor: "#3b82f6" },
+    { title: "System Design", desc: "Architecture & Scalability", icon: Terminal, href: "/dashboard/practice?category=system_design", hoverBorder: "hover:border-[rgba(245,158,11,0.3)]", bg: "rgba(245, 158, 11, 0.05)", border: "rgba(245, 158, 11, 0.15)", iconColor: "#f59e0b" },
+    { title: "HR / Behavioral", desc: "Leadership & Culture", icon: MessageSquare, href: "/dashboard/practice?category=hr", hoverBorder: "hover:border-[rgba(34,197,94,0.3)]", bg: "rgba(34, 197, 94, 0.05)", border: "rgba(34, 197, 94, 0.15)", iconColor: "#22c55e" }
   ];
 
   if (loading) {
@@ -125,32 +125,32 @@ export default function DashboardHomePage() {
       {/* METRICS ROW (4 items, horizontal) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
         {/* Current Streak */}
-        <div className="hover:border-[rgba(255,255,255,0.2)] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px 24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Streak</div>
+        <div className="hover:border-[rgba(249,115,22,0.3)] transition-colors" style={{ background: 'rgba(249, 115, 22, 0.05)', border: '1px solid rgba(249, 115, 22, 0.15)', borderRadius: '16px', padding: '20px 24px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#f97316', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Streak</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: '#f0f0f5', marginTop: '8px', fontWeight: 700 }}>
             {data?.currentStreak ?? 0} {data && data.currentStreak > 0 ? "🔥" : ""}
           </div>
         </div>
 
         {/* Total Answers */}
-        <div className="hover:border-[rgba(255,255,255,0.2)] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px 24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Answers</div>
+        <div className="hover:border-[rgba(59,130,246,0.3)] transition-colors" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)', borderRadius: '16px', padding: '20px 24px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Answers</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: '#f0f0f5', marginTop: '8px', fontWeight: 700 }}>
             {data?.totalAnswers ?? 0}
           </div>
         </div>
 
         {/* Average Score */}
-        <div className="hover:border-[rgba(255,255,255,0.2)] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px 24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Average Score</div>
+        <div className="hover:border-[rgba(34,197,94,0.3)] transition-colors" style={{ background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.15)', borderRadius: '16px', padding: '20px 24px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Average Score</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: getAverageScoreColor(data?.averageScore ?? 0), marginTop: '8px', fontWeight: 700 }}>
             {data?.averageScore !== null ? data?.averageScore : "-"}
           </div>
         </div>
 
         {/* Questions Today */}
-        <div className="hover:border-[rgba(255,255,255,0.2)] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px 24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Questions Today</div>
+        <div className="hover:border-[rgba(168,85,247,0.3)] transition-colors" style={{ background: 'rgba(168, 85, 247, 0.05)', border: '1px solid rgba(168, 85, 247, 0.15)', borderRadius: '16px', padding: '20px 24px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Questions Today</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: '#f0f0f5', marginTop: '8px', fontWeight: 700 }}>
             {data?.questionsLeftToday !== undefined ? Math.max(0, 30 - data.questionsLeftToday) : 0}
           </div>
@@ -165,10 +165,10 @@ export default function DashboardHomePage() {
             <Link 
               key={i} 
               href={action.href}
-              className="group hover:border-[rgba(255,255,255,0.2)] transition-all"
+              className={`group ${action.hoverBorder} transition-all`}
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: action.bg,
+                border: `1px solid ${action.border}`,
                 borderRadius: '16px',
                 padding: '20px',
                 display: 'flex',
@@ -179,7 +179,7 @@ export default function DashboardHomePage() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ color: '#f0f0f5' }}><action.icon size={20} /></div>
+                <div style={{ color: action.iconColor }}><action.icon size={20} /></div>
                 <div>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', color: '#f0f0f5', fontWeight: 600 }}>{action.title}</div>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#8888a0', marginTop: '2px' }}>{action.desc}</div>
@@ -193,7 +193,7 @@ export default function DashboardHomePage() {
 
       {/* RECENT ANSWERS */}
       <div>
-        <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 16px 0', fontWeight: 400 }}>Recent sessions</h2>
+        <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#f0f0f5', margin: '0 0 16px 0', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Recent sessions</h2>
         
         {data && data.recentAnswers.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
