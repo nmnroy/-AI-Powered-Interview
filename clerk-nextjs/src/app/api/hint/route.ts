@@ -31,7 +31,8 @@ Respond with ONLY the hint text, nothing else.`;
   try {
     const hint = await generateWithFallback(prompt);
     return NextResponse.json({ hint: hint.trim() });
-  } catch {
+  } catch (e) {
+    console.error("Hint generation API error:", e);
     return NextResponse.json({ error: "Failed to generate hint" }, { status: 500 });
   }
 }

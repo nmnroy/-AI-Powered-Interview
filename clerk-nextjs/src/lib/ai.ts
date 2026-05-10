@@ -13,14 +13,16 @@ export async function generateWithFallback(prompt: string): Promise<string> {
   // Try each Gemini key one by one
   for (const key of geminiKeys) {
     try {
+      console.log(`Attempting hint generation with Gemini key (Index: ${geminiKeys.indexOf(key)})`);
       const genAI = new GoogleGenerativeAI(key)
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash" 
+        model: "gemini-1.5-flash" 
       })
       const result = await model.generateContent(prompt)
       return result.response.text()
     } catch (error: unknown) {
       const errorObject = error as { status?: number; message?: string }
+      console.error("Gemini attempt failed:", errorObject.message || errorObject);
       // If rate limited or quota exceeded, try next key
       if (
         errorObject.status === 429 ||
