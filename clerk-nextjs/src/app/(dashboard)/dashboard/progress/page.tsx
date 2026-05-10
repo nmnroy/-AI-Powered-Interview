@@ -242,7 +242,7 @@ export default function ProgressPage() {
               <YAxis domain={[0, 10]} stroke="#44445a" tick={{ fill: "#8888a0", fontSize: 11 }} />
               <Tooltip content={<CategoryTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
               <Bar dataKey="avgScore" radius={[6, 6, 0, 0]}>
-                <LabelList dataKey="avgScore" position="top" formatter={(v: number) => v?.toFixed(1)} style={{ fill: "#f0f0f5", fontSize: 11, fontWeight: 700 }} />
+                <LabelList dataKey="avgScore" position="top" formatter={(v: any) => v != null ? Number(v).toFixed(1) : ""} style={{ fill: "#f0f0f5", fontSize: 11, fontWeight: 700 }} />
                 {(data?.categoryData ?? []).map((entry, i) => (
                   <Cell key={`cell-${i}`} fill={CATEGORY_CONFIG[entry.category]?.barColor ?? "#888"} fillOpacity={0.85} />
                 ))}
