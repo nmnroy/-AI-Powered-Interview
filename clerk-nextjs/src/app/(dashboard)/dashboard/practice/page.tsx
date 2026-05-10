@@ -218,15 +218,18 @@ export default function PracticePage() {
   }
 
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: 'calc(100vh - 40px)' }}>
+    <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 40px)', overflow: 'hidden' }}>
       
       {/* LEFT PANEL */}
       <div style={{ 
-        flex: 1,
+        width: '420px',
+        minWidth: '360px',
+        flexShrink: 0,
         background: 'rgba(255,255,255,0.02)', 
         borderRight: '1px solid rgba(255,255,255,0.1)', 
         padding: '32px', 
-        height: '100%', 
+        height: '100%',
+        overflowY: 'auto',
         position: 'relative'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -402,9 +405,11 @@ export default function PracticePage() {
       {/* RIGHT PANEL */}
       <div style={{ 
         flex: 1,
+        minWidth: 0,
         background: 'transparent', 
         padding: '32px', 
         height: '100%',
+        overflow: 'hidden',
         position: 'relative'
       }}>
         {mode !== 'feedback' ? (
