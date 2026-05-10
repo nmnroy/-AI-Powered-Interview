@@ -383,34 +383,29 @@ export default function Home() {
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 'auto' }}>
               Gemini 2.5 Flash scores your answer across three dimensions and gives you specific, actionable improvements. Not just a pass/fail.
             </p>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-              <span style={{ 
-                fontSize: '11px', 
-                fontFamily: 'var(--font-mono)', 
-                background: 'var(--bg-elevated)', 
-                border: '1px solid var(--border-default)', 
-                padding: '4px 10px', 
-                borderRadius: '20px', 
-                color: 'var(--text-secondary)' 
-              }}>Clarity</span>
-              <span style={{ 
-                fontSize: '11px', 
-                fontFamily: 'var(--font-mono)', 
-                background: 'var(--bg-elevated)', 
-                border: '1px solid var(--border-default)', 
-                padding: '4px 10px', 
-                borderRadius: '20px', 
-                color: 'var(--text-secondary)' 
-              }}>Completeness</span>
-              <span style={{ 
-                fontSize: '11px', 
-                fontFamily: 'var(--font-mono)', 
-                background: 'var(--bg-elevated)', 
-                border: '1px solid var(--border-default)', 
-                padding: '4px 10px', 
-                borderRadius: '20px', 
-                color: 'var(--text-secondary)' 
-              }}>Structure</span>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              {[
+                { label: 'Clarity', icon: '🎯', color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)' },
+                { label: 'Completeness', icon: '✅', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.25)' },
+                { label: 'Structure', icon: '🏗️', color: '#a855f7', bg: 'rgba(168,85,247,0.08)', border: 'rgba(168,85,247,0.25)' },
+              ].map(tag => (
+                <span key={tag.label} style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 600,
+                  background: tag.bg,
+                  border: `1px solid ${tag.border}`,
+                  padding: '5px 12px',
+                  borderRadius: '8px',
+                  color: tag.color,
+                  boxShadow: `0 0 8px ${tag.bg}`,
+                }}>
+                  {tag.icon} {tag.label}
+                </span>
+              ))}
             </div>
           </div>
 
