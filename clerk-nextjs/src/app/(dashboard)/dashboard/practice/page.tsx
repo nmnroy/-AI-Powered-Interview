@@ -254,6 +254,13 @@ export default function PracticePage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {["All", "DSA", "HR", "System Design", "Behavioral"].map(c => {
                 const active = category === c;
+                let rgb = "245, 166, 35";
+                if (c === "DSA") rgb = "59, 130, 246"; // Blue
+                else if (c === "HR") rgb = "34, 197, 94"; // Green
+                else if (c === "System Design") rgb = "245, 158, 11"; // Orange
+                else if (c === "Behavioral") rgb = "168, 85, 247"; // Purple
+                else if (c === "All") rgb = "136, 136, 160"; // Gray
+
                 return (
                   <button
                     key={c}
@@ -263,9 +270,9 @@ export default function PracticePage() {
                       fontSize: '11px',
                       padding: '6px 12px',
                       borderRadius: '6px',
-                      background: active ? 'rgba(245,166,35,0.15)' : 'transparent',
-                      color: active ? '#f5a623' : '#8888a0',
-                      border: active ? '1px solid rgba(245,166,35,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      background: active ? `rgba(${rgb},0.15)` : 'transparent',
+                      color: active ? `rgb(${rgb})` : '#8888a0',
+                      border: active ? `1px solid rgba(${rgb},0.4)` : '1px solid rgba(255,255,255,0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.2s'
                     }}
@@ -283,6 +290,12 @@ export default function PracticePage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {["All", "Easy", "Medium", "Hard"].map(d => {
                 const active = difficulty === d;
+                let rgb = "245, 166, 35";
+                if (d === "Easy") rgb = "34, 197, 94"; // Green
+                else if (d === "Medium") rgb = "245, 158, 11"; // Orange
+                else if (d === "Hard") rgb = "239, 68, 68"; // Red
+                else if (d === "All") rgb = "136, 136, 160"; // Gray
+
                 return (
                   <button
                     key={d}
@@ -292,9 +305,9 @@ export default function PracticePage() {
                       fontSize: '11px',
                       padding: '6px 12px',
                       borderRadius: '6px',
-                      background: active ? 'rgba(245,166,35,0.15)' : 'transparent',
-                      color: active ? '#f5a623' : '#8888a0',
-                      border: active ? '1px solid rgba(245,166,35,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      background: active ? `rgba(${rgb},0.15)` : 'transparent',
+                      color: active ? `rgb(${rgb})` : '#8888a0',
+                      border: active ? `1px solid rgba(${rgb},0.4)` : '1px solid rgba(255,255,255,0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.2s'
                     }}
