@@ -333,8 +333,8 @@ export default function Home() {
         <div style={{ display: 'grid', gridTemplateColumns: '60% 40%', gap: '24px', marginTop: '48px' }}>
           {/* Large Card */}
           <div style={{ 
-            background: 'rgba(255,255,255,0.05)', 
-            border: '1px solid rgba(255,255,255,0.1)', 
+            background: 'rgba(245, 166, 35, 0.05)', 
+            border: '1px solid rgba(245, 166, 35, 0.15)', 
             borderRadius: 'var(--radius-xl)', 
             padding: '40px', 
             height: '320px', 
@@ -345,7 +345,7 @@ export default function Home() {
             <div style={{ 
               width: '40px', 
               height: '40px', 
-              background: 'var(--accent-dim)', 
+              background: 'rgba(245, 166, 35, 0.15)', 
               borderRadius: '10px', 
               display: 'flex', 
               alignItems: 'center', 
@@ -391,8 +391,8 @@ export default function Home() {
           {/* Small Cards Stack */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
+              background: 'rgba(59, 130, 246, 0.05)', 
+              border: '1px solid rgba(59, 130, 246, 0.15)', 
               borderRadius: 'var(--radius-xl)', 
               padding: '24px', 
               height: '148px' 
@@ -400,7 +400,7 @@ export default function Home() {
               <div style={{ 
                 width: '32px', 
                 height: '32px', 
-                background: 'var(--accent-dim)', 
+                background: 'rgba(59, 130, 246, 0.15)', 
                 borderRadius: '8px', 
                 display: 'flex', 
                 alignItems: 'center', 
@@ -412,8 +412,8 @@ export default function Home() {
               <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>DSA, HR, System Design — all levels</p>
             </div>
             <div style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
+              background: 'rgba(34, 197, 94, 0.05)', 
+              border: '1px solid rgba(34, 197, 94, 0.15)', 
               borderRadius: 'var(--radius-xl)', 
               padding: '24px', 
               height: '148px' 
@@ -421,7 +421,7 @@ export default function Home() {
               <div style={{ 
                 width: '32px', 
                 height: '32px', 
-                background: 'var(--accent-dim)', 
+                background: 'rgba(34, 197, 94, 0.15)', 
                 borderRadius: '8px', 
                 display: 'flex', 
                 alignItems: 'center', 
@@ -438,20 +438,20 @@ export default function Home() {
         {/* Row of 3 cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
           {[
-            { icon: '👁', title: 'Proctoring', desc: 'Face detection + tab switch monitoring' },
-            { icon: '📝', title: 'JD Generator', desc: 'Paste JD, get questions' },
-            { icon: '🎙', title: 'Voice Input', desc: 'Speak your answers naturally' }
+            { icon: '👁', title: 'Proctoring', desc: 'Face detection + tab switch monitoring', bg: 'rgba(239, 68, 68, 0.05)', border: 'rgba(239, 68, 68, 0.15)', iconBg: 'rgba(239, 68, 68, 0.15)' },
+            { icon: '📝', title: 'JD Generator', desc: 'Paste JD, get questions', bg: 'rgba(168, 85, 247, 0.05)', border: 'rgba(168, 85, 247, 0.15)', iconBg: 'rgba(168, 85, 247, 0.15)' },
+            { icon: '🎙', title: 'Voice Input', desc: 'Speak your answers naturally', bg: 'rgba(14, 165, 233, 0.05)', border: 'rgba(14, 165, 233, 0.15)', iconBg: 'rgba(14, 165, 233, 0.15)' }
           ].map((feature, i) => (
             <div key={i} style={{ 
-              background: 'rgba(255,255,255,0.05)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
+              background: feature.bg, 
+              border: `1px solid ${feature.border}`, 
               borderRadius: 'var(--radius-xl)', 
               padding: '24px' 
             }}>
               <div style={{ 
                 width: '32px', 
                 height: '32px', 
-                background: 'var(--accent-dim)', 
+                background: feature.iconBg, 
                 borderRadius: '8px', 
                 display: 'flex', 
                 alignItems: 'center', 
