@@ -134,35 +134,42 @@ export default function Home() {
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '18px', margin: '0 0 20px' }}>With real AI feedback.</p>
           <p style={{ maxWidth: '480px', margin: '0 auto 36px', fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            Practice DSA, HR and System Design. Get scored by Gemini 2.5 Flash on clarity, completeness and structure. Track your growth daily.
+            Practice DSA, HR and System Design — get instant scores on clarity, completeness, and structure. No fluff. Just growth.
           </p>
 
           {/* CTA Buttons */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '48px' }}>
-            <Link href="/sign-in" style={{ 
-              background: 'var(--accent)', 
+          <style dangerouslySetInnerHTML={{__html: `
+            .cta-main:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(245, 166, 35, 0.5); }
+            .cta-gh:hover { border-color: rgba(255,255,255,0.3); color: #f0f0f5; }
+          `}} />
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '48px', alignItems: 'center' }}>
+            <Link href="/sign-in" className="cta-main" style={{ 
+              background: 'linear-gradient(135deg, var(--accent), #ff6b00)', 
               color: '#ffffff', 
-              fontWeight: 600, 
-              padding: '12px 24px', 
-              borderRadius: 'var(--radius-sm)', 
-              fontSize: '14px', 
+              fontWeight: 700, 
+              padding: '16px 32px', 
+              borderRadius: '14px', 
+              fontSize: '15px', 
               textDecoration: 'none', 
               fontFamily: 'var(--font-body)', 
-              transition: 'all 0.2s', 
+              transition: 'all 0.25s ease',
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '8px' 
+              gap: '10px',
+              border: '1px solid rgba(245, 166, 35, 0.4)',
+              boxShadow: '0 0 20px rgba(245, 166, 35, 0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
+              letterSpacing: '-0.01em'
             }}>Start practicing free <ArrowRight size={16} /></Link>
-            <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" style={{ 
+            <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" className="cta-gh" style={{ 
               background: 'transparent', 
               border: '1px solid var(--border-strong)', 
               color: 'var(--text-secondary)', 
-              padding: '12px 24px', 
-              borderRadius: 'var(--radius-sm)', 
-              fontSize: '14px', 
+              padding: '16px 28px', 
+              borderRadius: '14px', 
+              fontSize: '15px', 
               textDecoration: 'none', 
               fontFamily: 'var(--font-body)', 
-              transition: 'all 0.2s' 
+              transition: 'all 0.2s'
             }}>View on GitHub</a>
           </div>
 
