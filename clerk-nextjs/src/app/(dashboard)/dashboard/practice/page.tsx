@@ -63,8 +63,8 @@ export default function PracticePage() {
       case "Python": return "# Welcome to your Python project!\n\n";
       case "Java": return 'class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello World in Java");\n    }\n}\n';
       case "C++": return '// Online C++ compiler to run C++ program online\n#include <iostream>\n\nint main() {\n    // Write C++ code here\n    std::cout << "Start small. Ship something.";\n\n    return 0;\n}\n';
-      case "JavaScript": return 'let x = 10;\nlet y = 25;\nlet z = x + y;\n\nconsole.log("Sum of x+y = " + z);\n';
-      case "TypeScript": return '// Welcome to the TypeScript Playground, this is a website\n// which gives you a chance to write, share and learn TypeScript.\n\n// You could think of it in three ways:\n//\n//  - A location to learn TypeScript where nothing can break\n//  - A place to experiment with TypeScript syntax, and share the URLs with others\n//  - A sandbox to experiment with different compiler features of TypeScript\n\nconst anExampleVariable = "Hello World"\nconsole.log(anExampleVariable)\n\n// To learn more about the language, click above in "Examples" or "What\'s New".\n// Otherwise, get started by removing these comments and the world is your playground.\n';
+      case "JavaScript": return '// Online JavaScript Editor — Write, Edit and Run your code here\n// Try console.log("Hello, World!") to get started\n\nfunction greet(name) {\n  return `Hello, ${name}! Welcome to PrepAI.`;\n}\n\nconsole.log(greet("World"));\n';
+      case "TypeScript": return '// Online TypeScript Editor — Write, Edit and Run your code here\n// Try console.log("Hello, World!") to get started\n\nfunction greet(name: string): string {\n  return `Hello, ${name}! Welcome to PrepAI.`;\n}\n\nconsole.log(greet("World"));\n';
       default: return "";
     }
   };
