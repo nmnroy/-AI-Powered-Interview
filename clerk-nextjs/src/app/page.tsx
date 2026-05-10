@@ -293,6 +293,12 @@ export default function Home() {
       </section>
 
       {/* ═══ TICKER ═══ */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}} />
       <div style={{ 
         width: '100%', 
         background: 'rgba(255,255,255,0.05)', 
@@ -304,10 +310,12 @@ export default function Home() {
       }}>
         <div style={{ 
           display: 'flex', 
-          animation: 'translateX(-50%) infinite linear 12s', 
-          whiteSpace: 'nowrap' 
+          width: 'max-content',
+          animation: 'marquee 20s linear infinite', 
+          alignItems: 'center',
+          height: '100%'
         }}>
-          {[...tickerItems, ...tickerItems].map((item, i) => (
+          {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
             <span key={i} style={{ 
               fontSize: '13px', 
               color: 'var(--text-muted)', 
