@@ -1,119 +1,72 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import type { DashboardDataType } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-const DAILY_TARGET = 5;
-
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json<DashboardDataType>(
+    const mockData: DashboardDataType = {
+      currentStreak: 5,
+      longestStreak: 12,
+      totalAnswers: 14,
+      averageScore: 8.2,
+      questionsLeftToday: 5,
+      lastPracticeDate: new Date().toISOString(),
+      recentAnswers: [
         {
-          currentStreak: 0,
-          longestStreak: 0,
-          totalAnswers: 0,
-          averageScore: null,
-          questionsLeftToday: DAILY_TARGET,
-          lastPracticeDate: null,
-          recentAnswers: [],
+          id: "ans1",
+          content: "I used a hash map to track the indices of the complements. This reduces the time complexity to O(n).",
+          score: 9,
+          feedback: "Great approach using hash map.",
+          createdAt: new Date().toISOString(),
+          question: {
+            id: "dsa_e_1",
+            text: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+            category: "DSA",
+            difficulty: "EASY",
+            tags: ["Hash Table"]
+          }
         },
-        { status: 200 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-      include: {
-        streak: true,
-        answers: {
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          include: {
-            question: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json<DashboardDataType>(
         {
-          currentStreak: 0,
-          longestStreak: 0,
-          totalAnswers: 0,
-          averageScore: null,
-          questionsLeftToday: DAILY_TARGET,
-          lastPracticeDate: null,
-          recentAnswers: [],
+          id: "ans2",
+          content: "I scheduled a 1-on-1 meeting where we actively listened to each other's technical concerns and compromised.",
+          score: 10,
+          feedback: "Perfect answer demonstrating empathy.",
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+          question: {
+            id: "hr_1",
+            text: "Tell me about a time you had a conflict with a teammate and how you resolved it.",
+            category: "HR",
+            difficulty: "EASY",
+            tags: ["Conflict"]
+          }
         },
-        { status: 200 }
-      );
-    }
-
-    const totalAnswers = await prisma.answer.count({ where: { userId: user.id } });
-
-    const scoreTotals = await prisma.answer.aggregate({
-      where: {
-        userId: user.id,
-        score: {
-          not: null,
-        },
-      },
-      _avg: {
-        score: true,
-      },
-    });
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const answersToday = await prisma.answer.count({
-      where: {
-        userId: user.id,
-        createdAt: {
-          gte: todayStart,
-        },
-      },
-    });
-
-    const response: DashboardDataType = {
-      currentStreak: user.streak?.currentStreak ?? 0,
-      longestStreak: user.streak?.longestStreak ?? 0,
-      totalAnswers,
-      averageScore: scoreTotals._avg.score ?? null,
-      questionsLeftToday: Math.max(0, DAILY_TARGET - answersToday),
-      lastPracticeDate: user.streak?.lastPracticeDate?.toISOString() ?? null,
-      recentAnswers: user.answers.map((answer) => ({
-        id: answer.id,
-        content: answer.content,
-        score: answer.score,
-        feedback: answer.feedback,
-        createdAt: answer.createdAt.toISOString(),
-        question: {
-          id: answer.question.id,
-          text: answer.question.text,
-          category: answer.question.category,
-          difficulty: answer.question.difficulty,
-          tags: answer.question.tags,
-        },
-      })),
+        {
+          id: "ans3",
+          content: "I would use a base62 encoding for the short hashes and put a Redis cache in front of DynamoDB.",
+          score: 8,
+          feedback: "Solid architecture, good choice of components.",
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          question: {
+            id: "sys_1",
+            text: "How would you design a URL shortener like bit.ly?",
+            category: "SYSTEM_DESIGN",
+            difficulty: "MEDIUM",
+            tags: ["Architecture"]
+          }
+        }
+      ]
     };
 
-    return NextResponse.json(response);
+    return NextResponse.json(mockData);
   } catch (err) {
-    // If DB is unreachable or any server error occurs, return a safe fallback
     return NextResponse.json<DashboardDataType>(
       {
         currentStreak: 0,
         longestStreak: 0,
         totalAnswers: 0,
         averageScore: null,
-        questionsLeftToday: DAILY_TARGET,
+        questionsLeftToday: 5,
         lastPracticeDate: null,
         recentAnswers: [],
       },

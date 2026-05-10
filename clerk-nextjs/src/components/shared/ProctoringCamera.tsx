@@ -29,7 +29,7 @@ export default function ProctoringCamera({ isActive, onStatsUpdate }: Proctoring
     sessionDuration: 0,
   });
 
-  const MODEL_URL = "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights";
+  const MODEL_URL = "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights";
 
   useEffect(() => {
     let mounted = true;

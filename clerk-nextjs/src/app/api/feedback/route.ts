@@ -1,7 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { generateWithFallback } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -61,77 +58,16 @@ function buildLocalFeedback(questionText: string, answerText: string): ParsedFee
   };
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
-
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = (await req.json()) as Partial<FeedbackPayload>;
-    const { answerId } = body;
+    const { answerId, question, answer } = body;
 
-    if (!answerId) {
+    if (!answerId || !question || !answer) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const existing = await prisma.answer.findUnique({
-      where: { id: answerId },
-      include: {
-        user: true,
-        question: true,
-      },
-    });
-    if (!existing) {
-      return NextResponse.json({ error: "Answer not found" }, { status: 404 });
-    }
-
-    if (existing.user.clerkId !== userId) {
-      return NextResponse.json({ error: "Answer not found" }, { status: 404 });
-    }
-
-    const question = existing.question.text;
-    const answer = existing.content;
-
-    const prompt = `You are an expert technical interview coach.
-Evaluate this interview answer and respond in this exact JSON format only, no other text:
-{
-  "score": number (1-10 overall),
-  "clarity": number (1-10),
-  "completeness": number (1-10),
-  "structure": number (1-10),
-  "strengths": [string, string],
-  "improvements": [string, string, string],
-  "summary": "string (2 sentences max)"
-}
-
-Question: ${question}
-Candidate Answer: ${answer}
-
-Be specific, actionable, and encouraging.`;
-
-    let parsed: ParsedFeedback | null = null;
-
-    try {
-      const text = await generateWithFallback(prompt);
-      try {
-        const firstCurly = text.indexOf("{");
-        const lastCurly = text.lastIndexOf("}");
-        if (firstCurly !== -1 && lastCurly !== -1) {
-          parsed = JSON.parse(text.slice(firstCurly, lastCurly + 1)) as ParsedFeedback;
-        } else {
-          parsed = JSON.parse(text) as ParsedFeedback;
-        }
-      } catch {
-        parsed = buildLocalFeedback(question, answer);
-      }
-    } catch {
-      parsed = buildLocalFeedback(question, answer);
-    }
+    let parsed = buildLocalFeedback(question, answer);
 
     parsed = {
       ...parsed,
@@ -144,19 +80,11 @@ Be specific, actionable, and encouraging.`;
       summary: typeof parsed.summary === "string" ? parsed.summary : "Feedback generated.",
     };
 
-    await prisma.answer.update({
-      where: { id: answerId },
-      data: {
-        score: Math.round(parsed.score),
-        feedback: JSON.stringify(parsed),
-      },
-    });
-
     return NextResponse.json(parsed);
 
   } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Feedback generation failed", message: getErrorMessage(error) },
+      { error: "Feedback generation failed", message: String(error) },
       { status: 500 }
     );
   }

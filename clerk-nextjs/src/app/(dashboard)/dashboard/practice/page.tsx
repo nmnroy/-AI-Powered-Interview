@@ -7,42 +7,79 @@ import { toast } from "sonner";
 import type { QuestionType } from "@/types";
 import { Skeleton } from "@/components/ui/Skeleton";
 import ProctoringCamera from "@/components/shared/ProctoringCamera";
+import { Mic } from "lucide-react";
 
 type Mode = "select" | "write" | "feedback";
+
+function formatTime(s: number) {
+  const mm = Math.floor(s / 60).toString().padStart(2, "0");
+  const ss = (s % 60).toString().padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
+function getCategoryBadgeStyle(category: string) {
+  const cat = category.toUpperCase();
+  if (cat.includes("DSA")) return { color: "#6366f1", background: "rgba(99,102,241,0.12)" };
+  if (cat.includes("SYSTEM_DESIGN") || cat.includes("SYSTEM DESIGN")) return { color: "#f59e0b", background: "rgba(245,158,11,0.1)" };
+  if (cat.includes("BEHAVIORAL")) return { color: "#22c55e", background: "rgba(34,197,94,0.1)" };
+  return { color: "#f5a623", background: "rgba(245,166,35,0.15)" };
+}
+
+function getDifficultyBadgeStyle(difficulty: string) {
+  const diff = difficulty.toUpperCase();
+  if (diff === "EASY") return { color: "#22c55e", background: "rgba(34,197,94,0.1)" };
+  if (diff === "MEDIUM") return { color: "#f59e0b", background: "rgba(245,158,11,0.1)" };
+  if (diff === "HARD") return { color: "rgba(239, 68, 68, 0.8)", background: "rgba(239, 68, 68, 0.1)" };
+  return { color: "#8888a0", background: "rgba(255,255,255,0.05)" };
+}
 
 export default function PracticePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
   const [mode, setMode] = useState<Mode>("select");
   const [category, setCategory] = useState<string>("All");
   const [difficulty, setDifficulty] = useState<string>("All");
+  const [language, setLanguage] = useState("Python");
+  
   const [question, setQuestion] = useState<QuestionType | null>(null);
   const [content, setContent] = useState("");
   const [timerSec, setTimerSec] = useState(0);
   const timerRef = useRef<number | null>(null);
-  const [loadingFeedback, setLoadingFeedback] = useState(false);
-  const [submittingAnswer, setSubmittingAnswer] = useState(false);
+  
   const [questionLoading, setQuestionLoading] = useState(Boolean(searchParams.get("questionId")));
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedback, setFeedback] = useState<any | null>(null);
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(0);
+  
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [cameraStats, setCameraStats] = useState({ noFaceWarnings: 0, multipleFaceWarnings: 0, sessionDuration: 0 });
-  useEffect(() => {
-    // Fetch current streak
-    const fetchStreak = async () => {
-      try {
-        const res = await fetch("/api/dashboard", { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          setCurrentStreak(data.currentStreak || 0);
-        }
-      } catch (e) {
-        // Ignore streak fetch errors
-      }
-    };
-    fetchStreak();
+  const [runningCode, setRunningCode] = useState(false);
+  const [executionOutput, setExecutionOutput] = useState<string | null>(null);
 
+  const getBoilerplate = (lang: string) => {
+    switch(lang) {
+      case "Python": return "# Welcome to your Python project!\n\n";
+      case "Java": return 'class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello World in Java");\n    }\n}\n';
+      case "C++": return '// Online C++ compiler to run C++ program online\n#include <iostream>\n\nint main() {\n    // Write C++ code here\n    std::cout << "Start small. Ship something.";\n\n    return 0;\n}\n';
+      case "JavaScript": return 'let x = 10;\nlet y = 25;\nlet z = x + y;\n\nconsole.log("Sum of x+y = " + z);\n';
+      case "TypeScript": return '// Welcome to the TypeScript Playground, this is a website\n// which gives you a chance to write, share and learn TypeScript.\n\n// You could think of it in three ways:\n//\n//  - A location to learn TypeScript where nothing can break\n//  - A place to experiment with TypeScript syntax, and share the URLs with others\n//  - A sandbox to experiment with different compiler features of TypeScript\n\nconst anExampleVariable = "Hello World"\nconsole.log(anExampleVariable)\n\n// To learn more about the language, click above in "Examples" or "What\'s New".\n// Otherwise, get started by removing these comments and the world is your playground.\n';
+      default: return "";
+    }
+  };
+
+  useEffect(() => {
+    if (question?.category === "DSA") {
+      const isCurrentBoilerplate = content.trim() === "" || 
+        ["Python", "Java", "C++", "JavaScript", "TypeScript"].some(l => content.trim() === getBoilerplate(l).trim());
+      if (isCurrentBoilerplate) {
+        setContent(getBoilerplate(language));
+      }
+    }
+  }, [language, question]);
+
+  useEffect(() => {
     const questionId = searchParams.get("questionId");
     if (!questionId) return;
     let active = true;
@@ -60,16 +97,12 @@ export default function PracticePage() {
         if (active) setQuestionLoading(false);
       }
     })();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [searchParams]);
 
   useEffect(() => {
     if (mode === "write") {
       timerRef.current = window.setInterval(() => setTimerSec((s) => s + 1), 1000);
-      
       const handleVisibilityChange = () => {
         if (document.hidden) {
           setTabSwitchCount(prev => {
@@ -80,19 +113,15 @@ export default function PracticePage() {
         }
       };
       document.addEventListener('visibilitychange', handleVisibilityChange);
-      
       return () => {
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
+        if (timerRef.current) clearInterval(timerRef.current);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     }
   }, [mode]);
 
   useEffect(() => {
-    if (feedback && feedback.score) {
+    if (feedback && feedback.score !== undefined) {
       const targetScore = feedback.score;
       let current = 0;
       const increment = targetScore / 20;
@@ -109,16 +138,10 @@ export default function PracticePage() {
     }
   }, [feedback]);
 
-  function formatTime(s: number) {
-    const mm = Math.floor(s / 60).toString().padStart(2, "0");
-    const ss = (s % 60).toString().padStart(2, "0");
-    return `${mm}:${ss}`;
-  }
-
   async function getQuestion() {
     setQuestionLoading(true);
     const params = new URLSearchParams();
-    if (category && category !== "All") params.set("category", category === "SYSTEM_DESIGN" ? "SYSTEM_DESIGN" : category);
+    if (category && category !== "All") params.set("category", category === "System Design" ? "SYSTEM_DESIGN" : category);
     if (difficulty && difficulty !== "All") params.set("difficulty", difficulty.toUpperCase());
     try {
       const url = "/api/questions/random" + (params.toString() ? `?${params.toString()}` : "");
@@ -127,9 +150,11 @@ export default function PracticePage() {
       const q = await res.json();
       setQuestion(q);
       setContent("");
+      setExecutionOutput(null);
       setTimerSec(0);
       setTabSwitchCount(0);
       setCameraStats({ noFaceWarnings: 0, multipleFaceWarnings: 0, sessionDuration: 0 });
+      setLanguage("Python");
       setMode("write");
     } catch (e) {
       toast.error("Something went wrong. Try again.");
@@ -146,10 +171,15 @@ export default function PracticePage() {
     }
     setSubmittingAnswer(true);
     try {
+      const payload = { 
+        questionId: question.id, 
+        content,
+        language: question.category === "DSA" ? language : undefined 
+      };
       const res = await fetch("/api/answers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId: question.id, content }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Failed to save answer");
       const saved = await res.json();
@@ -181,459 +211,505 @@ export default function PracticePage() {
     setQuestion(null);
     setContent("");
     setTimerSec(0);
+    setExecutionOutput(null);
     setFeedback(null);
     setAnimatedScore(0);
     router.replace("/dashboard/practice");
   }
 
-  function getCategoryColor(cat: string) {
-    switch (cat) {
-      case "DSA": return "bg-cyan-500/10 text-cyan-300 border-cyan-500/20";
-      case "HR": return "bg-purple-500/10 text-purple-300 border-purple-500/20";
-      case "SYSTEM_DESIGN": return "bg-orange-500/10 text-orange-300 border-orange-500/20";
-      case "BEHAVIORAL": return "bg-green-500/10 text-green-300 border-green-500/20";
-      default: return "bg-gray-500/10 text-gray-300 border-gray-500/20";
-    }
-  }
-
-  function getDifficultyColor(diff: string) {
-    switch (diff) {
-      case "EASY": return "bg-green-500/10 text-green-300 border-green-500/20";
-      case "MEDIUM": return "bg-yellow-500/10 text-yellow-300 border-yellow-500/20";
-      case "HARD": return "bg-red-500/10 text-red-300 border-red-500/20";
-      default: return "bg-gray-500/10 text-gray-300 border-gray-500/20";
-    }
-  }
-
-  function getScoreColor(score: number) {
-    if (score >= 8) return "text-green-400";
-    if (score >= 5) return "text-yellow-400";
-    return "text-red-400";
-  }
-
   return (
-    <div className="min-h-screen relative" style={{ background: '#0a0f1e' }}>
-      {/* Floating Orbs */}
-      <div style={{
-        position: 'absolute',
-        top: '10%',
-        right: '5%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(0,212,255,0.06), transparent 70%)',
-        borderRadius: '50%',
-        animation: 'float 8s ease-in-out infinite',
-        zIndex: 0
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        left: '5%',
-        width: '300px',
-        height: '300px',
-        background: 'radial-gradient(circle, rgba(124,58,237,0.06), transparent 70%)',
-        borderRadius: '50%',
-        animation: 'float 8s ease-in-out infinite reverse',
-        zIndex: 0
-      }} />
-
-      {/* Particle Effect */}
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            top: `${Math.random() * 20}%`,
-            left: `${Math.random() * 100}%`,
-            width: '2px',
-            height: '2px',
-            background: 'rgba(0,212,255,0.3)',
-            borderRadius: '50%',
-            animation: `drift ${20 + Math.random() * 10}s infinite`,
-            animationDelay: `${Math.random() * 5}s`,
-            zIndex: 0
-          }}
-        />
-      ))}
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) }
-          50% { transform: translateY(-20px) }
-        }
-        @keyframes drift {
-          0%, 100% { transform: translateX(0px) translateY(0px) }
-          25% { transform: translateX(10px) translateY(-5px) }
-          50% { transform: translateX(-5px) translateY(10px) }
-          75% { transform: translateX(5px) translateY(5px) }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px) }
-          to { opacity: 1; transform: translateY(0) }
-        }
-      `}</style>
-
-      <div className="relative z-10 p-6">
-        {/* Page Header */}
-        <div className="flex justify-between items-start mb-8">
+    <div style={{ display: 'flex', width: '100%', minHeight: 'calc(100vh - 40px)' }}>
+      
+      {/* LEFT PANEL */}
+      <div style={{ 
+        flex: 1,
+        background: 'rgba(255,255,255,0.02)', 
+        borderRight: '1px solid rgba(255,255,255,0.1)', 
+        padding: '32px', 
+        height: '100%', 
+        position: 'relative'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <div>
-            <Link href="/dashboard" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#64748b',
-              fontSize: 13,
-              marginBottom: 16,
-              textDecoration: 'none',
-              padding: '6px 12px',
-              borderRadius: 8,
-              border: '1px solid #1e2d4a',
-              background: 'transparent',
-              transition: 'all 0.2s',
-            }}>
-              ← Back to Dashboard
+            <Link 
+              href="/dashboard" 
+              style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#8888a0', textDecoration: 'none', transition: 'color 0.2s' }}
+              className="hover:text-white"
+            >
+              ← Dashboard
             </Link>
-            <h1 className="text-white font-semibold" style={{ fontSize: '28px' }}>Practice Session</h1>
-            <p className="text-gray-400 mt-1" style={{ fontSize: '14px' }}>Sharpen your skills with targeted questions</p>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '22px', color: '#f0f0f5', margin: '8px 0 0 0', fontWeight: 700 }}>
+              Practice
+            </h1>
           </div>
-          <div className="px-3 py-1 rounded-full text-sm" style={{
-            background: currentStreak > 0 ? 'rgba(0,212,255,0.1)' : 'rgba(156,163,175,0.1)',
-            color: currentStreak > 0 ? '#00d4ff' : '#9ca3af',
-            border: `1px solid ${currentStreak > 0 ? 'rgba(0,212,255,0.3)' : 'rgba(156,163,175,0.3)'}`
-          }}>
-            🔥 {currentStreak > 0 ? `${currentStreak} day streak` : 'Start your streak today'}
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#8888a0' }}>
+            {formatTime(timerSec)}
           </div>
         </div>
 
-        {/* Filter Section */}
-        {mode === "select" && (
-          <div style={{
-            background: '#0d1526',
-            border: '1px solid #1e2d4a',
-            borderRadius: '12px',
-            padding: '20px'
-          }}>
-            <div className="mb-4">
-              <label className="text-cyan-300 uppercase text-xs tracking-wider font-semibold">Category</label>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {["All", "DSA", "HR", "SYSTEM_DESIGN", "BEHAVIORAL"].map((c) => (
+        {/* Filters Section (Always visible, but maybe disabled during test) */}
+        <div style={{ opacity: mode === 'select' ? 1 : 0.5, pointerEvents: mode === 'select' ? 'auto' : 'none' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#44445a', letterSpacing: '2px', marginBottom: '8px' }}>CATEGORY</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {["All", "DSA", "HR", "System Design", "Behavioral"].map(c => {
+                const active = category === c;
+                return (
                   <button
                     key={c}
                     onClick={() => setCategory(c)}
-                    className="px-4 py-2 rounded-full text-sm transition-all duration-200"
                     style={{
-                      background: category === c 
-                        ? 'linear-gradient(135deg, #00d4ff, #7c3aed)' 
-                        : 'transparent',
-                      color: category === c ? 'white' : '#9ca3af',
-                      border: category === c ? 'none' : '1px solid #1e2d4a',
-                      transform: category === c ? 'scale(1.01)' : 'scale(1)'
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      background: active ? 'rgba(245,166,35,0.15)' : 'transparent',
+                      color: active ? '#f5a623' : '#8888a0',
+                      border: active ? '1px solid rgba(245,166,35,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
                     }}
+                    className={!active ? "hover:border-[rgba(255,255,255,0.2)]" : ""}
                   >
-                    <span style={{
-                      display: 'inline-block',
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: category === c ? 'white' : 'transparent',
-                      marginRight: '6px'
-                    }} />
-                    {c === "All" ? "All" : c === "SYSTEM_DESIGN" ? "SYSTEM DESIGN" : c}
+                    {c}
                   </button>
-                ))}
-              </div>
+                )
+              })}
             </div>
+          </div>
 
-            <div className="mb-6">
-              <label className="text-cyan-300 uppercase text-xs tracking-wider font-semibold">Difficulty</label>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {['All', 'Easy', 'Medium', 'Hard'].map((d) => (
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#44445a', letterSpacing: '2px', marginBottom: '8px' }}>DIFFICULTY</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {["All", "Easy", "Medium", "Hard"].map(d => {
+                const active = difficulty === d;
+                return (
                   <button
                     key={d}
                     onClick={() => setDifficulty(d)}
-                    className="px-4 py-2 rounded-full text-sm transition-all duration-200"
                     style={{
-                      background: difficulty === d 
-                        ? (d === 'Easy' ? '#10b981' : d === 'Medium' ? '#eab308' : d === 'Hard' ? '#ef4444' : 'linear-gradient(135deg, #00d4ff, #7c3aed)')
-                        : 'transparent',
-                      color: difficulty === d ? 'white' : '#9ca3af',
-                      border: difficulty === d ? 'none' : '1px solid #1e2d4a',
-                      transform: difficulty === d ? 'scale(1.01)' : 'scale(1)'
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      background: active ? 'rgba(245,166,35,0.15)' : 'transparent',
+                      color: active ? '#f5a623' : '#8888a0',
+                      border: active ? '1px solid rgba(245,166,35,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
                     }}
+                    className={!active ? "hover:border-[rgba(255,255,255,0.2)]" : ""}
                   >
-                    <span style={{
-                      display: 'inline-block',
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: difficulty === d ? 'white' : 'transparent',
-                      marginRight: '6px'
-                    }} />
                     {d}
                   </button>
-                ))}
-              </div>
+                )
+              })}
             </div>
-
-            <button
-              onClick={getQuestion}
-              disabled={questionLoading}
-              className="w-full text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-              style={{
-                height: '48px',
-                background: 'linear-gradient(135deg, #00d4ff, #7c3aed)',
-                transform: questionLoading ? 'scale(1)' : 'scale(1)',
-                opacity: questionLoading ? 0.7 : 1
-              }}
-            >
-              {questionLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Finding question...
-                </>
-              ) : (
-                <>
-                  ⚡ Get Question
-                </>
-              )}
-            </button>
           </div>
-        )}
 
-        {/* Question Card */}
-        {mode === 'write' && question && (
-          <div style={{
-            background: '#0d1526',
-            border: '1px solid #1e2d4a',
-            borderRadius: '16px',
-            padding: '24px',
-            animation: 'fadeInUp 0.5s ease-out'
-          }}>
-            {tabSwitchCount >= 3 && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm text-center font-medium">
-                You switched tabs 3+ times during this session
-              </div>
-            )}
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex gap-2">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${getCategoryColor(question.category)}`}>
-                  {question.category === "SYSTEM_DESIGN" ? "SYSTEM DESIGN" : question.category}
-                </span>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${getDifficultyColor(question.difficulty)}`}>
-                  {question.difficulty}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-gray-400 font-mono text-sm">{formatTime(timerSec)}</span>
-                <button 
-                  onClick={resetToSelect}
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  Skip
-                </button>
-              </div>
-            </div>
-
-            <p className="text-white mb-6" style={{ 
-              fontSize: '18px', 
-              fontWeight: 400, 
-              lineHeight: 1.7 
-            }}>
-              {question.text}
-            </p>
-
-            <div className="border-t border-gray-700 pt-4 mb-4">
-              <label className="text-cyan-300 text-xs font-medium uppercase tracking-wider mb-2 block">Your Answer</label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Structure your answer with examples. Be specific and concise."
-                className="w-full resize-none outline-none transition-all duration-200"
-                style={{
-                  minHeight: '180px',
-                  background: '#080d1a',
-                  border: '1px solid #1e2d4a',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  color: 'white',
-                  fontSize: '15px',
-                  lineHeight: 1.7
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#00d4ff';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(0,212,255,0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#1e2d4a';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-gray-400 text-xs">{content.length} / 1000</span>
-              </div>
-            </div>
-
-            <button
-              onClick={submitAnswer}
-              disabled={submittingAnswer || loadingFeedback || !content.trim()}
-              className="px-6 py-2.5 rounded-lg text-white font-medium transition-all duration-200 flex items-center gap-2"
-              style={{
-                background: 'linear-gradient(135deg, #00d4ff, #7c3aed)',
-                opacity: (submittingAnswer || loadingFeedback || !content.trim()) ? 0.5 : 1,
-                cursor: (submittingAnswer || loadingFeedback || !content.trim()) ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {submittingAnswer || loadingFeedback ? "Analyzing..." : "📤 Submit Answer"}
-            </button>
+          <button
+            onClick={getQuestion}
+            disabled={questionLoading}
+            style={{
+              width: '100%',
+              height: '44px',
+              background: '#f5a623',
+              color: '#000',
+              fontWeight: 600,
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontFamily: 'var(--font-display)',
+              border: 'none',
+              marginTop: '24px',
+              cursor: questionLoading ? 'not-allowed' : 'pointer',
+              opacity: questionLoading ? 0.7 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            {questionLoading ? (
+              <>
+                <div style={{ width: '16px', height: '16px', border: '2px solid #000', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                Fetching...
+              </>
+            ) : "Get Question"}
+          </button>
+          <div style={{ textAlign: 'center', marginTop: '8px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0' }}>
+            or press ⌘K
           </div>
-        )}
+          <style dangerouslySetInnerHTML={{__html: `@keyframes spin { 100% { transform: rotate(360deg); } }`}} />
+        </div>
 
-        {/* Feedback Card */}
-        {mode === 'feedback' && question && feedback && (
-          <div style={{
-            background: '#0d1526',
-            border: '1px solid #1e2d4a',
-            borderRadius: '16px',
-            padding: '24px',
-            animation: 'fadeInUp 0.5s ease-out'
-          }}>
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-cyan-400 text-lg">🤖</span>
-              <h2 className="text-white text-xl font-semibold">AI Feedback</h2>
-            </div>
-
-            <div className="text-center mb-8">
-              <div className={`text-6xl font-bold ${getScoreColor(animatedScore)}`}>
-                {animatedScore}/10
-              </div>
-              <p className="text-gray-400 text-sm mt-2">Overall Score</p>
-            </div>
-
-            {/* Proctoring Summary Card */}
-            <div className="mb-8 p-4 rounded-lg flex flex-col md:flex-row justify-between items-center border border-gray-700" style={{ background: '#080d1a' }}>
-              <div>
-                <h3 className="text-white font-semibold text-sm flex items-center gap-2">
-                  <span className="text-red-400">📷</span> Session Report
-                </h3>
-              </div>
-              <div className="flex gap-6 mt-4 md:mt-0 text-sm">
-                <div className="flex flex-col items-center">
-                  <span className="text-gray-400 text-xs">Tab switches</span>
-                  <span className={`font-semibold ${tabSwitchCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{tabSwitchCount}</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-gray-400 text-xs">Face warnings</span>
-                  <span className={`font-semibold ${cameraStats.noFaceWarnings + cameraStats.multipleFaceWarnings > 0 ? 'text-red-400' : 'text-green-400'}`}>{cameraStats.noFaceWarnings + cameraStats.multipleFaceWarnings}</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-gray-400 text-xs">Duration</span>
-                  <span className="text-white font-semibold">{formatTime(cameraStats.sessionDuration)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              {[
-                { label: 'Clarity', value: feedback.clarity, color: '#00d4ff' },
-                { label: 'Completeness', value: feedback.completeness, color: '#7c3aed' },
-                { label: 'Structure', value: feedback.structure, color: '#10b981' }
-              ].map((metric) => (
-                <div key={metric.label} className="flex items-center justify-between">
-                  <span className="text-white text-sm">{metric.label}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                      <div 
-                        className="h-full transition-all duration-1000 ease-out"
-                        style={{
-                          width: `${(metric.value / 10) * 100}%`,
-                          background: metric.color
-                        }}
-                      />
-                    </div>
-                    <span className="text-white text-sm w-8 text-right">{metric.value}/10</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {(feedback.strengths?.length > 0) && (
-              <div className="mb-6 p-4 rounded-lg" style={{ background: 'rgba(16,185,129,0.05)' }}>
-                <h3 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
-                  ✓ Strengths
-                </h3>
-                <ul className="space-y-2">
-                  {feedback.strengths.map((strength: string, i: number) => (
-                    <li key={i} className="text-white text-sm flex items-start gap-2">
-                      <span className="text-green-400 mt-0.5">•</span>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {(feedback.improvements?.length > 0) && (
-              <div className="mb-6 p-4 rounded-lg" style={{ background: 'rgba(245,158,11,0.05)' }}>
-                <h3 className="text-orange-400 font-semibold mb-3 flex items-center gap-2">
-                  → Improvements
-                </h3>
-                <ul className="space-y-2">
-                  {feedback.improvements.map((improvement: string, i: number) => (
-                    <li key={i} className="text-white text-sm flex items-start gap-2">
-                      <span className="text-orange-400 mt-0.5">→</span>
-                      {improvement}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {feedback.summary && (
-              <div className="p-4 rounded-lg mb-6" style={{ 
-                background: 'rgba(0,212,255,0.05)',
-                borderLeft: '3px solid #00d4ff'
+        {/* QUESTION DISPLAY */}
+        {(mode === 'write' || mode === 'feedback') && question && (
+          <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <span style={{ 
+                ...getCategoryBadgeStyle(question.category),
+                fontFamily: 'var(--font-mono)', fontSize: '10px', padding: '4px 8px', borderRadius: '4px', fontWeight: 600
               }}>
-                <p className="text-gray-300 italic text-sm">{feedback.summary}</p>
-              </div>
-            )}
+                {question.category.replace('_', ' ')}
+              </span>
+              <span style={{ 
+                ...getDifficultyBadgeStyle(question.difficulty),
+                fontFamily: 'var(--font-mono)', fontSize: '10px', padding: '4px 8px', borderRadius: '4px', fontWeight: 600
+              }}>
+                {question.difficulty}
+              </span>
+            </div>
+            
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: '16px', lineHeight: 1.75, color: '#f0f0f5' }}>
+              {question.text}
+            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={resetToSelect}
-                className="py-3 rounded-lg text-white font-medium transition-all duration-200"
+            {mode === 'write' && (
+              <button 
+                onClick={getQuestion}
                 style={{
-                  background: 'linear-gradient(135deg, #00d4ff, #7c3aed)'
+                  marginTop: '16px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '12px',
+                  color: '#8888a0',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0
                 }}
+                className="hover:text-white transition-colors"
               >
-                Practice Another
+                Skip this →
               </button>
-              <Link
-                href="/dashboard/progress"
-                className="py-3 rounded-lg text-white font-medium border border-gray-600 text-center transition-all duration-200 hover:border-gray-400"
-              >
-                View Progress →
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {questionLoading && !question && (
-          <div className="space-y-4">
-            <Skeleton className="h-24 w-full rounded-2xl" />
-            <Skeleton className="h-[240px] w-full rounded-2xl" />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Skeleton className="h-12 rounded-full" />
-              <Skeleton className="h-12 rounded-full" />
-            </div>
+            )}
           </div>
         )}
       </div>
-      
-      <ProctoringCamera 
-        isActive={mode === 'write'}
-        onStatsUpdate={setCameraStats}
-      />
+
+      {/* RIGHT PANEL */}
+      <div style={{ 
+        flex: 1,
+        background: 'transparent', 
+        padding: '32px', 
+        height: '100%',
+        position: 'relative'
+      }}>
+        {mode !== 'feedback' ? (
+          // ANSWER STATE
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', opacity: mode === 'select' ? 0.3 : 1, pointerEvents: mode === 'select' ? 'none' : 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#44445a' }}>
+                  {question?.category === "DSA" ? "YOUR CODE" : "YOUR ANSWER"}
+                </div>
+                {question?.category === "DSA" && (
+                  <select 
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#f0f0f5',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="Python">Python</option>
+                    <option value="Java">Java</option>
+                    <option value="C++">C++</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="TypeScript">TypeScript</option>
+                  </select>
+                )}
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0' }}>{content.length} / 2000</div>
+            </div>
+            
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={question?.category === "DSA" ? `Write your ${language} code here...` : "Structure your answer clearly..."}
+              spellCheck={question?.category === "DSA" ? false : true}
+              style={{
+                width: '100%',
+                minHeight: '400px',
+                flex: 1,
+                background: question?.category === "DSA" ? '#0a0a0f' : 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '10px',
+                padding: '20px',
+                fontFamily: question?.category === "DSA" ? 'var(--font-mono)' : 'var(--font-body)',
+                fontSize: question?.category === "DSA" ? '13px' : '15px',
+                lineHeight: 1.8,
+                color: question?.category === "DSA" ? '#e2e8f0' : '#f0f0f5',
+                resize: 'vertical',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                whiteSpace: question?.category === "DSA" ? 'pre' : 'pre-wrap',
+                overflowWrap: question?.category === "DSA" ? 'normal' : 'break-word',
+                overflowX: question?.category === "DSA" ? 'auto' : 'hidden'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#f5a623'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+              onKeyDown={(e) => {
+                if (question?.category === "DSA" && e.key === 'Tab') {
+                  e.preventDefault();
+                  const start = e.currentTarget.selectionStart;
+                  const end = e.currentTarget.selectionEnd;
+                  setContent(content.substring(0, start) + "    " + content.substring(end));
+                  setTimeout(() => {
+                    if (e.currentTarget) {
+                      e.currentTarget.selectionStart = e.currentTarget.selectionEnd = start + 4;
+                    }
+                  }, 0);
+                }
+              }}
+            />
+
+            {executionOutput !== null && (
+              <div style={{
+                marginTop: '16px',
+                background: '#0a0a0f',
+                border: '1px solid #1e2d4a',
+                borderRadius: '8px',
+                padding: '16px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
+                color: '#34d399',
+                whiteSpace: 'pre-wrap',
+                minHeight: '80px',
+                position: 'relative'
+              }}>
+                <div style={{ position: 'absolute', top: 0, right: 0, padding: '4px 8px', fontSize: '10px', color: '#64748b' }}>
+                  OUTPUT
+                  <button onClick={() => setExecutionOutput(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', marginLeft: '8px' }}>✕</button>
+                </div>
+                {executionOutput}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+              <button style={{ 
+                background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: '40px', height: '40px', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8888a0', cursor: 'pointer' 
+              }}>
+                <Mic size={18} />
+              </button>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {question?.category === "DSA" && (
+                  <button
+                    onClick={async () => {
+                      setRunningCode(true);
+                      setExecutionOutput("Compiling...\n");
+                      try {
+                        const res = await fetch("/api/execute", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ code: content, language })
+                        });
+                        if (!res.ok) throw new Error("Execution failed");
+                        const data = await res.json();
+                        setExecutionOutput(`Compiling...\nExecuting...\n\n${data.output}\n\nExecution finished.`);
+                      } catch (e) {
+                        setExecutionOutput("Compiling...\nExecution Error: Failed to connect to compiler.");
+                      } finally {
+                        setRunningCode(false);
+                      }
+                    }}
+                    disabled={runningCode || submittingAnswer || !content.trim()}
+                    style={{
+                      background: '#10b981',
+                      color: '#000',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontFamily: 'var(--font-display)',
+                      border: 'none',
+                      padding: '12px 24px',
+                      cursor: (runningCode || submittingAnswer || !content.trim()) ? 'not-allowed' : 'pointer',
+                      opacity: (runningCode || submittingAnswer || !content.trim()) ? 0.7 : 1,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    {runningCode ? "Running..." : "Run Code ▶"}
+                  </button>
+                )}
+                <button
+                  onClick={submitAnswer}
+                  disabled={submittingAnswer || !content.trim()}
+                  style={{
+                    background: '#f5a623',
+                    color: '#000',
+                    fontWeight: 600,
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontFamily: 'var(--font-display)',
+                    border: 'none',
+                    padding: '12px 24px',
+                    cursor: (submittingAnswer || !content.trim()) ? 'not-allowed' : 'pointer',
+                    opacity: (submittingAnswer || !content.trim()) ? 0.7 : 1,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  {submittingAnswer ? "Submitting..." : "Submit answer →"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // FEEDBACK STATE
+          <div style={{
+            animation: 'slideUpFade 0.4s ease forwards',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }}>
+            <style dangerouslySetInnerHTML={{__html: `
+              @keyframes slideUpFade {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+            `}} />
+            
+            {loadingFeedback || !feedback ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <Skeleton className="h-24 w-full rounded-xl bg-[rgba(255,255,255,0.05)]" />
+                <Skeleton className="h-40 w-full rounded-xl bg-[rgba(255,255,255,0.05)]" />
+              </div>
+            ) : (
+              <>
+                {/* Score */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '72px', color: '#f5a623', fontWeight: 700, lineHeight: 1 }}>
+                      {animatedScore}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: '#8888a0', fontWeight: 600 }}>
+                      /10
+                    </span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
+                    {[
+                      { label: 'Clarity', value: feedback.clarity, color: '#f5a623' },
+                      { label: 'Completeness', value: feedback.completeness, color: '#6366f1' },
+                      { label: 'Structure', value: feedback.structure, color: '#22c55e' }
+                    ].map(metric => (
+                      <div key={metric.label}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0' }}>{metric.label}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#8888a0' }}>{metric.value}/10</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', background: metric.color, width: `${(metric.value / 10) * 100}%`, transition: 'width 1s ease' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+
+                {/* Strengths */}
+                {feedback.strengths && feedback.strengths.length > 0 && (
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#8888a0', marginBottom: '12px', letterSpacing: '1px' }}>STRENGTHS</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {feedback.strengths.map((str: string, i: number) => (
+                        <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                          <span style={{ color: '#22c55e', fontSize: '14px', lineHeight: 1.5 }}>•</span>
+                          <span style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#f0f0f5', lineHeight: 1.5 }}>{str}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Improvements */}
+                {feedback.improvements && feedback.improvements.length > 0 && (
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#8888a0', marginBottom: '12px', letterSpacing: '1px' }}>TO IMPROVE</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {feedback.improvements.map((imp: string, i: number) => (
+                        <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                          <span style={{ color: '#f5a623', fontSize: '14px', lineHeight: 1.5 }}>→</span>
+                          <span style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#f0f0f5', lineHeight: 1.5 }}>{imp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Summary */}
+                {feedback.summary && (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderLeft: '2px solid rgba(245,166,35,0.4)',
+                    padding: '16px',
+                    fontStyle: 'italic',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
+                    color: '#8888a0'
+                  }}>
+                    {feedback.summary}
+                  </div>
+                )}
+
+                {/* Bottom Row */}
+                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                  <button
+                    onClick={resetToSelect}
+                    style={{
+                      background: '#f5a623',
+                      color: '#000',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontFamily: 'var(--font-display)',
+                      border: 'none',
+                      padding: '12px 24px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Practice another →
+                  </button>
+                  <Link
+                    href="/dashboard/progress"
+                    style={{
+                      background: 'transparent',
+                      color: '#f0f0f5',
+                      fontWeight: 500,
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontFamily: 'var(--font-body)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '12px 24px',
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}
+                    className="hover:bg-[var(--bg-surface)]"
+                  >
+                    View progress
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <ProctoringCamera isActive={mode === 'write'} onStatsUpdate={setCameraStats} />
     </div>
   );
 }
