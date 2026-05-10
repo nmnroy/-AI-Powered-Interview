@@ -656,14 +656,14 @@ export default function Home() {
 
       {/* ═══ CTA ═══ */}
       <section style={{ padding: '120px 32px', textAlign: 'center', maxWidth: '700px', margin: '0 auto' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>Ready to stop winging it?</h2>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '16px' }}>Stop grinding blindly. Start compiling offers.</h2>
         <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '36px' }}>
-          Practice once a day. Get AI feedback. Track what actually improves.
+          Get real-time, actionable feedback from an AI that actually understands your code and system design.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
           <Link href="/sign-in" style={{ 
             background: 'var(--accent)', 
-            color: '#000', 
+            color: '#ffffff', 
             fontWeight: 600, 
             padding: '12px 24px', 
             borderRadius: 'var(--radius-sm)', 
@@ -675,7 +675,7 @@ export default function Home() {
             alignItems: 'center', 
             gap: '8px' 
           }}>Start practicing free <ArrowRight size={16} /></Link>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ 
+          <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" style={{ 
             background: 'transparent', 
             border: '1px solid var(--border-strong)', 
             color: 'var(--text-secondary)', 
