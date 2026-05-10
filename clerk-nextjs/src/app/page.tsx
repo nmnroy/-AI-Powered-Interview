@@ -77,12 +77,11 @@ export default function Home() {
             <a href="#pricing" className="nav-link">Pricing</a>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link href="/sign-in" className="nav-signin" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)', padding: '6px 12px', borderRadius: '8px', transition: 'all 0.2s' }}>Sign in</Link>
             <Link href="/sign-in" className="nav-cta" style={{ 
               background: 'linear-gradient(135deg, var(--accent), #ff6b00)',
               color: '#ffffff', 
               fontWeight: 600, 
-              padding: '7px 16px', 
+              padding: '7px 20px', 
               borderRadius: '10px', 
               fontSize: '13px', 
               textDecoration: 'none', 
@@ -93,7 +92,7 @@ export default function Home() {
               gap: '6px',
               border: '1px solid rgba(245,166,35,0.3)',
               boxShadow: '0 0 12px rgba(245,166,35,0.15)'
-            }}>Get started →</Link>
+            }}>Sign in →</Link>
           </div>
         </div>
       </header>
