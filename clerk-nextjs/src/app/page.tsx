@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import s from "./landing.module.css";
 
 const tickerItems = [
-  "500+ Questions", "Gemini 2.5 Flash", "DSA · HR · System Design",
+  "500+ Questions", "Gemini 2.0 Flash", "DSA · HR · System Design",
   "Free Forever", "Real-time AI Feedback", "Streak Tracking",
 ];
 
@@ -80,7 +80,7 @@ export default function Home() {
           </h1>
           <p className={s.heroSub}>With real AI feedback.</p>
           <p className={s.heroDesc}>
-            Practice DSA, HR and System Design. Get scored by Gemini 2.5 Flash on clarity, completeness and structure. Track your growth daily.
+            Practice DSA, HR and System Design. Get scored by Gemini 2.0 Flash on clarity, completeness and structure. Track your growth daily.
           </p>
 
           <div className={s.heroBtns}>
@@ -99,13 +99,13 @@ export default function Home() {
               textDecoration: 'none',
               fontFamily: 'var(--font-syne), sans-serif',
             }}>Start practicing free →</Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className={s.ghostBtn}>View on GitHub</a>
+            <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" className={s.ghostBtn}>View on GitHub</a>
           </div>
 
           <div className={s.socialProof}>
             <span>Used in 3 active placement seasons</span>
             <span className={s.divider} />
-            <span>Built with Gemini 2.5 Flash</span>
+            <span>Built with Gemini 2.0 Flash</span>
           </div>
 
           {/* PREVIEW CARD */}
@@ -173,14 +173,29 @@ export default function Home() {
           <div className={s.featLarge}>
             <div className={s.featIcon}>⚡</div>
             <h3 className={s.featTitle}>AI that actually coaches you</h3>
-            <p className={s.featDesc}>Gemini 2.5 Flash scores your answer across three dimensions and gives you specific, actionable improvements. Not just a pass/fail.</p>
-            <div className={s.pillRow}>
-              <span className={s.pill}>Clarity</span>
-              <span className={s.pill}>Completeness</span>
-              <span className={s.pill}>Structure</span>
+            <p className={s.featDesc}>Gemini 2.0 Flash scores your answer across three dimensions and gives you specific, actionable improvements. Not just a pass/fail.</p>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              {[
+                { label: 'Clarity', icon: '✨', color: 'var(--accent)', bg: 'var(--accent-dim)' },
+                { label: 'Completeness', icon: '🏆', color: 'var(--indigo)', bg: 'var(--indigo-dim)' },
+                { label: 'Structure', icon: '🏗️', color: '#22c55e', bg: 'rgba(34,197,94,0.1)' }
+              ].map(dim => (
+                <div key={dim.label} style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  background: dim.bg,
+                  border: `1px solid ${dim.color}33`,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  flex: 1,
+                  boxShadow: `0 4px 12px ${dim.color}11`
+                }}>
+                  <span style={{ fontSize: '18px' }}>{dim.icon}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: dim.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{dim.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
           </div>
           <div className={s.featSmallStack}>
             <div className={s.featSmall}>
@@ -322,7 +337,7 @@ export default function Home() {
               textDecoration: 'none',
               fontFamily: 'var(--font-syne), sans-serif',
             }}>Start practicing free →</Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className={s.ghostBtn}>View on GitHub</a>
+            <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" className={s.ghostBtn}>View on GitHub</a>
           </div>
         </div>
       </section>
@@ -333,10 +348,9 @@ export default function Home() {
         <div className={s.footerLinks}>
           <a href="#features" className={s.footerLink}>Features</a>
           <a href="/privacy" className={s.footerLink}>Privacy</a>
-          <a href="https://github.com" className={s.footerLink}>GitHub</a>
+          <a href="https://github.com/nmnroy/-AI-Powered-Interview" className={s.footerLink}>GitHub</a>
         </div>
-        <div className={s.footerText}>Made with Next.js + Gemini 2.5 Flash</div>
-        <div>Made with Next.js + Gemini 2.5 Flash</div>
+        <div className={s.footerText}>Made with Next.js + Gemini 2.0 Flash</div>
       </footer>
     </main>
   );
