@@ -45,6 +45,16 @@ export default function Home() {
       }} />
 
       {/* ═══ NAVBAR ═══ */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .nav-link { position: relative; color: var(--text-secondary); text-decoration: none; font-size: 13px; font-family: var(--font-body); transition: color 0.2s; padding: 6px 12px; border-radius: 8px; }
+        .nav-link:hover { color: #f0f0f5; background: rgba(255,255,255,0.05); }
+        .nav-link:active { transform: scale(0.95); background: rgba(245,166,35,0.12); color: var(--accent); }
+        .nav-link::after { content: ''; position: absolute; inset: 0; border-radius: 8px; opacity: 0; background: radial-gradient(circle, rgba(245,166,35,0.3) 0%, transparent 70%); transition: opacity 0.3s; }
+        .nav-link:active::after { opacity: 1; }
+        .nav-signin:hover { color: #f0f0f5; }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(245,166,35,0.4); }
+        .nav-cta:active { transform: scale(0.97); }
+      `}} />
       <header style={{ 
         position: 'fixed', 
         top: 0, 
@@ -58,29 +68,31 @@ export default function Home() {
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'var(--text-primary)', fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 600 }}>
-            <span style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px' }} />
+            <span style={{ width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '2px', boxShadow: '0 0 8px rgba(245,166,35,0.6)' }} />
             PrepAI
           </Link>
-          <nav style={{ display: 'flex', gap: '32px' }}>
-            <a href="#features" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)', transition: 'color 0.2s' }}>Features</a>
-            <a href="#how" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)', transition: 'color 0.2s' }}>How it Works</a>
-            <a href="#pricing" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)', transition: 'color 0.2s' }}>Pricing</a>
+          <nav style={{ display: 'flex', gap: '4px' }}>
+            <a href="#features" className="nav-link">Features</a>
+            <a href="#how" className="nav-link">How it Works</a>
+            <a href="#pricing" className="nav-link">Pricing</a>
           </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Link href="/sign-in" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)' }}>Sign in</Link>
-            <Link href="/sign-in" style={{ 
-              background: 'var(--accent)', 
-              color: '#000', 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Link href="/sign-in" className="nav-signin" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '13px', fontFamily: 'var(--font-body)', padding: '6px 12px', borderRadius: '8px', transition: 'all 0.2s' }}>Sign in</Link>
+            <Link href="/sign-in" className="nav-cta" style={{ 
+              background: 'linear-gradient(135deg, var(--accent), #ff6b00)',
+              color: '#ffffff', 
               fontWeight: 600, 
               padding: '7px 16px', 
-              borderRadius: 'var(--radius-sm)', 
+              borderRadius: '10px', 
               fontSize: '13px', 
               textDecoration: 'none', 
               fontFamily: 'var(--font-body)', 
               transition: 'all 0.2s', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '6px' 
+              gap: '6px',
+              border: '1px solid rgba(245,166,35,0.3)',
+              boxShadow: '0 0 12px rgba(245,166,35,0.15)'
             }}>Get started →</Link>
           </div>
         </div>
