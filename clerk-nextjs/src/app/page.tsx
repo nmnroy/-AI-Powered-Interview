@@ -678,32 +678,38 @@ export default function Home() {
         <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '36px' }}>
           Get real-time, actionable feedback from an AI that actually understands your code and system design.
         </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <Link href="/sign-in" style={{ 
-            background: 'var(--accent)', 
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', alignItems: 'center' }}>
+          <Link href="/sign-in" className="cta-main" style={{ 
+            background: 'linear-gradient(135deg, var(--accent), #ff6b00)', 
             color: '#ffffff', 
-            fontWeight: 600, 
-            padding: '12px 24px', 
-            borderRadius: 'var(--radius-sm)', 
-            fontSize: '14px', 
+            fontWeight: 700, 
+            padding: '16px 32px', 
+            borderRadius: '14px', 
+            fontSize: '15px', 
             textDecoration: 'none', 
             fontFamily: 'var(--font-body)', 
-            transition: 'all 0.2s', 
+            transition: 'all 0.25s ease',
             display: 'inline-flex', 
             alignItems: 'center', 
-            gap: '8px' 
-          }}>Start practicing free <ArrowRight size={16} /></Link>
-          <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" style={{ 
-            background: 'transparent', 
-            border: '1px solid var(--border-strong)', 
+            gap: '10px',
+            border: '1px solid rgba(245, 166, 35, 0.4)',
+            boxShadow: '0 0 20px rgba(245, 166, 35, 0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
+            letterSpacing: '-0.01em'
+          }}>Get started free <ArrowRight size={16} /></Link>
+          <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" className="cta-gh" style={{ 
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.15)', 
             color: 'var(--text-secondary)', 
-            padding: '12px 24px', 
-            borderRadius: 'var(--radius-sm)', 
-            fontSize: '14px', 
+            padding: '16px 28px', 
+            borderRadius: '14px', 
+            fontSize: '15px', 
             textDecoration: 'none', 
             fontFamily: 'var(--font-body)', 
-            transition: 'all 0.2s' 
-          }}>View on GitHub</a>
+            transition: 'all 0.2s',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>⭐ View on GitHub</a>
         </div>
       </section>
 
