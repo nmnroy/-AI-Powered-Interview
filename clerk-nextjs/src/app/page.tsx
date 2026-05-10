@@ -141,7 +141,7 @@ export default function Home() {
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '48px' }}>
             <Link href="/sign-in" style={{ 
               background: 'var(--accent)', 
-              color: '#000', 
+              color: '#ffffff', 
               fontWeight: 600, 
               padding: '12px 24px', 
               borderRadius: 'var(--radius-sm)', 
@@ -545,7 +545,7 @@ export default function Home() {
               display: 'block', 
               width: '100%', 
               background: 'var(--accent)', 
-              color: '#000', 
+              color: '#ffffff', 
               fontWeight: 600, 
               padding: '12px', 
               borderRadius: 'var(--radius-sm)', 
