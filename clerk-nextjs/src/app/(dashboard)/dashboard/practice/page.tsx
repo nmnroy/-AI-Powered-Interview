@@ -57,33 +57,6 @@ export default function PracticePage() {
   const [cameraStats, setCameraStats] = useState({ noFaceWarnings: 0, multipleFaceWarnings: 0, sessionDuration: 0 });
   const [runningCode, setRunningCode] = useState(false);
   const [executionOutput, setExecutionOutput] = useState<string | null>(null);
-  const [hint, setHint] = useState<string | null>(null);
-  const [hintLoading, setHintLoading] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
-
-  async function fetchHint() {
-    if (!question) return;
-    if (hint && !hint.toLowerCase().includes("failed") && !hint.toLowerCase().includes("exhausted")) { 
-      setHintVisible(v => !v); 
-      return; 
-    }
-    setHintLoading(true);
-    setHintVisible(true);
-    try {
-      const res = await fetch("/api/hint", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionText: question.text, category: question.category, difficulty: question.difficulty }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load hint");
-      setHint(json.hint || "No hint available for this question.");
-    } catch (e: any) {
-      setHint(e.message || "Failed to load hint. Try again.");
-    } finally {
-      setHintLoading(false);
-    }
-  }
 
   const getBoilerplate = (lang: string) => {
     switch(lang) {
@@ -241,8 +214,6 @@ export default function PracticePage() {
     setExecutionOutput(null);
     setFeedback(null);
     setAnimatedScore(0);
-    setHint(null);
-    setHintVisible(false);
     router.replace("/dashboard/practice");
   }
 
@@ -410,71 +381,22 @@ export default function PracticePage() {
             </div>
 
             {mode === 'write' && (
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {/* Skip button */}
-                  <button 
-                    onClick={getQuestion}
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '12px',
-                      color: '#8888a0',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
-                    className="hover:text-white transition-colors"
-                  >
-                    Skip this →
-                  </button>
-
-                  {/* Hint button — only for DSA */}
-                  {question?.category === 'DSA' && (
-                    <button
-                      onClick={fetchHint}
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '11px',
-                        color: hintVisible ? '#f5a623' : '#8888a0',
-                        background: hintVisible ? 'rgba(245,166,35,0.08)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${hintVisible ? 'rgba(245,166,35,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        padding: '4px 10px',
-                        transition: 'all 0.2s',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      {hintLoading ? (
-                        <><div style={{ width: '10px', height: '10px', border: '1.5px solid #f5a623', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />Loading...</>
-                      ) : (
-                        <>{hintVisible ? '🔒 Hide Hint' : '💡 Get Hint'}</>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                {/* Hint panel */}
-                {hintVisible && question?.category === 'DSA' && (
-                  <div style={{
-                    background: 'rgba(245,166,35,0.05)',
-                    border: '1px solid rgba(245,166,35,0.2)',
-                    borderRadius: '10px',
-                    padding: '14px 16px',
-                    borderLeft: '3px solid #f5a623'
-                  }}>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#f5a623', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>💡 Hint</div>
-                    {hintLoading ? (
-                      <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#8888a0', fontStyle: 'italic' }}>Generating hint...</div>
-                    ) : (
-                      <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#e0d8c0', lineHeight: 1.7 }}>{hint}</div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <button 
+                onClick={getQuestion}
+                style={{
+                  marginTop: '16px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '12px',
+                  color: '#8888a0',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+                className="hover:text-white transition-colors"
+              >
+                Skip this →
+              </button>
             )}
           </div>
         )}
