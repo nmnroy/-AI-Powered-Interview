@@ -153,7 +153,7 @@ export default function Home() {
               alignItems: 'center', 
               gap: '8px' 
             }}>Start practicing free <ArrowRight size={16} /></Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ 
+            <a href="https://github.com/nmnroy/-AI-Powered-Interview" target="_blank" rel="noopener noreferrer" style={{ 
               background: 'transparent', 
               border: '1px solid var(--border-strong)', 
               color: 'var(--text-secondary)', 
@@ -170,7 +170,7 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '64px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Used in 3 active placement seasons</span>
             <span style={{ width: '1px', height: '12px', background: 'var(--border-default)' }} />
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Built with Gemini 2.5 Flash</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Zero to hired in O(1)</span>
           </div>
 
           {/* Preview Card */}
