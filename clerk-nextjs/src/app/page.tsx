@@ -475,23 +475,29 @@ export default function Home() {
         </p>
 
         {/* Steps */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '20px', left: '0', right: '0', height: '1px', background: 'var(--border-default)', borderStyle: 'dashed' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', maxWidth: '1000px', margin: '0 auto' }}>
           {[
-            { num: "01", title: "Pick a Question", desc: "Choose from DSA, HR or System Design prompts at your difficulty level." },
-            { num: "02", title: "Write Your Answer", desc: "Compose an answer like you would in a real interview setting." },
-            { num: "03", title: "Get AI Feedback", desc: "Receive instant Gemini scoring with actionable improvement tips." }
+            { num: "01", title: "Pick a Question", desc: "Choose from DSA, HR or System Design prompts at your difficulty level.", bg: "rgba(59, 130, 246, 0.05)", border: "rgba(59, 130, 246, 0.15)", numColor: "#3b82f6" },
+            { num: "02", title: "Write Your Answer", desc: "Compose an answer like you would in a real interview setting.", bg: "rgba(249, 115, 22, 0.05)", border: "rgba(249, 115, 22, 0.15)", numColor: "#f97316" },
+            { num: "03", title: "Get AI Feedback", desc: "Receive instant Gemini scoring with actionable improvement tips.", bg: "rgba(34, 197, 94, 0.05)", border: "rgba(34, 197, 94, 0.15)", numColor: "#22c55e" }
           ].map((step, i) => (
-            <div key={i} style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+            <div key={i} style={{ 
+              background: step.bg, 
+              border: `1px solid ${step.border}`, 
+              borderRadius: '16px', 
+              padding: '32px 24px',
+              textAlign: 'left'
+            }}>
               <div style={{ 
                 fontSize: '11px', 
                 fontFamily: 'var(--font-mono)', 
-                color: 'var(--text-muted)', 
+                color: step.numColor, 
                 marginBottom: '16px', 
-                display: 'block' 
+                display: 'block',
+                fontWeight: 600
               }}>{step.num}</div>
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '12px' }}>{step.title}</h3>
-              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>{step.desc}</p>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>{step.desc}</p>
             </div>
           ))}
         </div>
